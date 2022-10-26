@@ -1,0 +1,29 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input CreateUserDto {
+  password: String
+  profile_color: String
+  username: String
+}
+
+type Mutation {
+  createUser(createUserDto: CreateUserDto!): UserDto!
+}
+
+type Query {
+  getUserById(userId: String!): UserDto!
+  getUsers: [UserDto!]!
+}
+
+type Subscription {
+  listenForUserAdded: UserDto!
+}
+
+type UserDto {
+  id: String!
+  password: String!
+  profile_color: String!
+  username: String!
+}
