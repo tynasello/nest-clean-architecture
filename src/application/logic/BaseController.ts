@@ -1,10 +1,6 @@
 import { Result, ResultError } from '@application/logic/Result';
 import { CUSTOM_ERRORS } from '@domain/CustomErrors';
-import {
-  AuthenticationError,
-  ForbiddenError,
-  UserInputError,
-} from 'apollo-server-express';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 export abstract class BaseController {
   public handleResult(result: Result<any>) {
@@ -15,26 +11,33 @@ export abstract class BaseController {
   }
 
   public success(dto?: any) {
-    return dto;
+    if (dto) {
+      return dto;
+    }
+    return;
   }
 
   public error(resultError: ResultError) {
     const { code, msg } = resultError;
+
     switch (code) {
       case CUSTOM_ERRORS.USER_INPUT_ERROR:
-        return new UserInputError(`Bad user input: ${msg}`);
-      case CUSTOM_ERRORS.AUTHENTICATION_ERROR:
-        return new AuthenticationError(`Authentication error: ${msg}`);
-      case CUSTOM_ERRORS.FORBIDDEN_ERROR:
-        return new ForbiddenError(`Forbidden error: ${msg}`);
-      case CUSTOM_ERRORS.INTERNAL_SERVER_ERROR:
-        return new Error(`Internal server error: ${msg}`);
-      default:
-        return new Error(`Internal server error: ${msg}`);
-    }
-  }
+        throw new HttpException(
+          `Bad user input: ${msg}`,
+          HttpStatus.BAD_REQUEST,
+        );
 
-  public fail(error: any) {
-    return error;
+      case CUSTOM_ERRORS.AUTHENTICATION_ERROR:
+        throw new HttpException(
+          `Bad user input: ${msg}`,
+          HttpStatus.UNAUTHORIZED,
+        );
+
+      default:
+        throw new HttpException(
+          `Internal servor error: ${msg}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+    }
   }
 }

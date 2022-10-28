@@ -1,13 +1,7 @@
-import { Field, InputType } from '@nestjs/graphql';
-
-@InputType()
 export class CreateUserDto {
-  @Field({ nullable: true })
-  username: string;
+  username?: string;
 
-  @Field({ nullable: true })
-  password: string;
+  password?: string;
 
-  @Field({ nullable: true })
-  profile_color: string;
+  profile_color?: string;
 }
