@@ -1,5 +1,7 @@
 import { BaseMapper } from '@application/logic/BaseMapper';
-import { User } from '@domain/entities/User';
+import { User } from '@domain/aggregates/User';
+import { DomainEventManager } from '@domain/events/DomainEventManager';
+import { UserCreatedEvent } from '@domain/events/UserCreatedEvent';
 import { IUserRepository } from '@domain/interfaces/IUserRepository';
 import { DatabaseService } from '@interface-adapters/Database.sevice';
 import { Inject, Injectable } from '@nestjs/common';
@@ -48,6 +50,13 @@ export class UserRepository implements IUserRepository {
     // save user using ORM
     const createdUser = await this.databaseService.create('user', rawUser);
 
-    return this.userMap.toDomain(createdUser);
+    user = this.userMap.toDomain(createdUser);
+
+    DomainEventManager.notifySubscribersOfDomainEvent(
+      UserCreatedEvent.name,
+      user,
+    );
+
+    return user;
   }
 }

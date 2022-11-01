@@ -24,7 +24,7 @@ export class CachingInterceptor implements NestInterceptor {
 
       if (method !== 'GET') {
         this.cacheService.reset();
-        console.log('Resetting cache (from CachingInterceptor)');
+        // console.log('Resetting cache (from CachingInterceptor)');
         return next.handle();
       }
 
@@ -32,14 +32,14 @@ export class CachingInterceptor implements NestInterceptor {
 
       const cachedData = await this.cacheService.get(cacheKey);
       if (cachedData) {
-        console.log(`Getting ${cacheKey} in cache (from CachingInterceptor)`);
+        // console.log(`Getting ${cacheKey} in cache (from CachingInterceptor)`);
         return of(cachedData);
       }
 
       return next.handle().pipe(
         tap(async (data) => {
           if (data instanceof Error) return;
-          console.log(`Caching ${cacheKey} (from CachingInterceptor)`);
+          // console.log(`Caching ${cacheKey} (from CachingInterceptor)`);
           await this.cacheService.set(cacheKey, data);
         }),
       );

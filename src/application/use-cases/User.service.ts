@@ -1,7 +1,7 @@
 import { BaseMapper } from '@application/logic/BaseMapper';
 import { Result } from '@application/logic/Result';
+import { User } from '@domain/aggregates/User';
 import { CUSTOM_ERRORS } from '@domain/CustomErrors';
-import { User } from '@domain/entities/User';
 import { IUserRepository } from '@domain/interfaces/IUserRepository';
 import { UserId } from '@domain/value-objects/user/UserId';
 import { UserPassword } from '@domain/value-objects/user/UserPassword';

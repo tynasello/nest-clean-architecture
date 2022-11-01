@@ -1,5 +1,6 @@
 import { Result } from '@application/logic/Result';
 import { AggregateRoot } from '@domain/AggregateRoot';
+import { UserCreatedEvent } from '@domain/events/UserCreatedEvent';
 import { UniqueEntityId } from '@domain/UniqueEntityId';
 import { UserId } from '@domain/value-objects/user/UserId';
 import { UserPassword } from '@domain/value-objects/user/UserPassword';
@@ -33,6 +34,8 @@ export class User extends AggregateRoot<UserProps> {
       },
       entityId,
     );
+
+    user.addDomainEvent(new UserCreatedEvent());
 
     return Result.ok<User>(user);
   }
