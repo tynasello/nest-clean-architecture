@@ -1,4 +1,5 @@
 import { AggregateRoot } from '@domain/AggregateRoot';
+import { GatewayType } from '@domain/Gateway.type';
 import { IDomainEvent } from './IDomainEvent';
 import { IDomainEventSubscriber } from './IDomainEventSubscriber';
 
@@ -50,12 +51,15 @@ export class DomainEventManager {
 
   public static notifySubscribersOfDomainEvent(
     eventName: string,
+    gateway?: GatewayType,
     aggregate?: AggregateRoot<any>,
   ) {
     const eventListenerMap = this.domainEventsToSubscribersMap.find(
       (etl) => etl.domainEvent.constructor.name === eventName,
     );
 
-    eventListenerMap.subscribers.forEach((etl) => etl.update(aggregate));
+    eventListenerMap.subscribers.forEach((etl) =>
+      etl.update(gateway, aggregate),
+    );
   }
 }

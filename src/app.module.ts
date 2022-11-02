@@ -4,6 +4,7 @@ import { CacheService } from '@interface-adapters/Cache.service';
 import { UserController } from '@interface-adapters/controllers/User.controller';
 import { UserMap } from '@interface-adapters/dal/mappers/UserMap';
 import { DatabaseService } from '@interface-adapters/Database.sevice';
+import { UserGateway } from '@interface-adapters/gateways/User.gateway';
 import { UserRepository } from '@interface-adapters/repositories/UserRepository';
 import { CacheModule, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -28,6 +29,7 @@ import * as redisStore from 'cache-manager-redis-store';
     { provide: 'BaseMapper<User>', useClass: UserMap },
     { provide: 'IUserRepository', useClass: UserRepository },
     UserService,
+    UserGateway,
   ],
 })
 export class AppModule {}

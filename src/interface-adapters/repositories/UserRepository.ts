@@ -4,6 +4,7 @@ import { DomainEventManager } from '@domain/events/DomainEventManager';
 import { UserCreatedEvent } from '@domain/events/UserCreatedEvent';
 import { IUserRepository } from '@domain/interfaces/IUserRepository';
 import { DatabaseService } from '@interface-adapters/Database.sevice';
+import { UserGateway } from '@interface-adapters/gateways/User.gateway';
 import { Inject, Injectable } from '@nestjs/common';
 
 interface ExistsProps {
@@ -16,6 +17,7 @@ export class UserRepository implements IUserRepository {
   constructor(
     private readonly databaseService: DatabaseService,
     @Inject('BaseMapper<User>') private readonly userMap: BaseMapper<User>,
+    private readonly userGateway: UserGateway,
   ) {}
 
   public async exists({ id, username }: ExistsProps): Promise<boolean> {
@@ -54,6 +56,7 @@ export class UserRepository implements IUserRepository {
 
     DomainEventManager.notifySubscribersOfDomainEvent(
       UserCreatedEvent.name,
+      this.userGateway,
       user,
     );
 
