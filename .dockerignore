@@ -1,0 +1,5 @@
+node_modules
+docker-compose*.yml
+npm-debug
+dist
+.git

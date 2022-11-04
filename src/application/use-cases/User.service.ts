@@ -1,20 +1,18 @@
-import { BaseMapper } from '@application/logic/BaseMapper';
+import { SignupUserDto } from '@application/contracts/dtos/user-auth/SignupUser.dto';
+import { UpdateUserDto } from '@application/contracts/dtos/user-auth/UpdateUser.dto';
+import { Guard } from '@application/logic/Guard';
 import { Result } from '@application/logic/Result';
 import { User } from '@domain/aggregates/User';
 import { CUSTOM_ERRORS } from '@domain/CustomErrors';
 import { IUserRepository } from '@domain/interfaces/IUserRepository';
-import { UserId } from '@domain/value-objects/user/UserId';
 import { UserPassword } from '@domain/value-objects/user/UserPassword';
 import { UserProfileColor } from '@domain/value-objects/user/UserProfileColor';
 import { UserUsername } from '@domain/value-objects/user/UserUsername';
-import { CreateUserDto } from '@interface-adapters/dal/dtos/CreateUser.dto';
-import { UserDto } from '@interface-adapters/dal/dtos/User.dto';
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class UserService {
   constructor(
-    @Inject('BaseMapper<User>') private userMap: BaseMapper<User>,
     @Inject('IUserRepository') private userRepository: IUserRepository,
   ) {}
 
@@ -22,73 +20,69 @@ export class UserService {
 
   async getUsers(): Promise<Result<any[]>> {
     const collectedUsers = await this.userRepository.getAll();
-    const userDtos = collectedUsers.map((user) => this.userMap.toDTO(user));
-    return Result.ok<UserDto[]>(userDtos);
+    return Result.ok<User[]>(collectedUsers);
   }
 
   // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  async getUserById(userId: string): Promise<Result<any>> {
-    const id_or_error = UserId.create({ value: userId });
-    if (id_or_error.isFailure) {
-      return Result.fail(id_or_error.getError());
-    }
-
+  async getUserByUsername(username: string): Promise<Result<any>> {
     const userExists = await this.userRepository.exists({
-      id: userId,
+      username,
     });
 
     if (!userExists)
       return Result.fail({
         code: CUSTOM_ERRORS.USER_INPUT_ERROR,
-        msg: `User with id ${userId} does not exist`,
+        msg: `User with username ${username} does not exist`,
       });
 
-    const collectedUser = await this.userRepository.getOneById(userId);
-    const userDto = this.userMap.toDTO(collectedUser);
-    return Result.ok<UserDto>(userDto);
+    const collectedUser = await this.userRepository.getOneByIdentifier({
+      username,
+    });
+
+    return Result.ok<User>(collectedUser);
   }
 
   // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  async createUser(createUserDto: CreateUserDto): Promise<Result<any>> {
-    const username_or_error = UserUsername.create({
+  async createUser(createUserDto: SignupUserDto): Promise<Result<any>> {
+    const usernameOrError = UserUsername.create({
       value: createUserDto.username,
     });
-    const password_or_error = UserPassword.create({
+    const passwordOrError = UserPassword.create({
       value: createUserDto.password,
     });
-    const profile_color_or_error = UserProfileColor.create({
-      value: createUserDto.profile_color,
+    const profileColorOrError = UserProfileColor.create({
+      value: createUserDto.profileColor,
     });
 
     const combinedPropsResult = Result.combine([
-      username_or_error,
-      password_or_error,
-      profile_color_or_error,
+      usernameOrError,
+      passwordOrError,
+      profileColorOrError,
     ]);
 
     if (combinedPropsResult.isFailure) {
       return Result.fail(combinedPropsResult.getError());
     }
 
-    const username = username_or_error.getValue();
-    const password = password_or_error.getValue();
-    const profile_color = profile_color_or_error.getValue();
+    const username = usernameOrError.getValue();
+    const password = passwordOrError.getValue();
+    const profileColor = profileColorOrError.getValue();
 
-    const user_or_error = User.create({
+    const userOrError = User.create({
       username,
       password,
-      profile_color,
+      profileColor,
     });
 
-    if (user_or_error.isFailure) {
-      const error = user_or_error.getError();
+    if (userOrError.isFailure) {
+      const error = userOrError.getError();
       return Result.fail(error);
     }
 
     // user entity created...
-    let user: User = user_or_error.getValue();
+    let user = userOrError.getValue() as User;
 
     // check unique username constraint met
     const userExists = await this.userRepository.exists({
@@ -102,8 +96,49 @@ export class UserService {
 
     // save user
     user = await this.userRepository.create(user);
-    const userDto = this.userMap.toDTO(user);
-    return Result.ok<UserDto>(userDto);
+
+    return Result.ok<User>(user);
+  }
+
+  // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+  public async updateUserRefreshToken(
+    updateUserDto: UpdateUserDto,
+  ): Promise<Result<any>> {
+    const { refreshToken } = updateUserDto;
+    const usernameOrError = UserUsername.create({
+      value: updateUserDto.username,
+    });
+    const refreshTokenOrError = Guard.againstNullOrUndefined(
+      refreshToken,
+      'refreshToken',
+    );
+
+    const combinedPropsResult = Result.combine([
+      usernameOrError,
+      refreshTokenOrError,
+    ]);
+
+    if (combinedPropsResult.isFailure) {
+      return Result.fail(combinedPropsResult.getError());
+    }
+
+    const username = usernameOrError.getValue();
+
+    const userExists = await this.userRepository.exists({
+      username: username.value,
+    });
+    if (!userExists)
+      return Result.fail({
+        code: CUSTOM_ERRORS.USER_INPUT_ERROR,
+        msg: 'User does not exist',
+      });
+
+    const updatedUser = await this.userRepository.updateUser(username.value, {
+      refreshToken: refreshToken,
+    });
+
+    return Result.ok<User>(updatedUser);
   }
 
   // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

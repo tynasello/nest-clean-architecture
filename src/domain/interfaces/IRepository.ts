@@ -1,6 +1,6 @@
 export interface IRepository<T> {
-  exists(identifier: any): Promise<boolean>;
+  exists(identifiers: any): Promise<boolean>;
   getAll(): Promise<T[]>;
-  getOneById(id: string): Promise<T>;
+  getOneByIdentifier(identifiers: any): Promise<T>;
   create(t: T): Promise<any>;
 }

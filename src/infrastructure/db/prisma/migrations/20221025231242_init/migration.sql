@@ -3,7 +3,7 @@ CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "username" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "profile_color" TEXT,
+    "profileColor" TEXT,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );

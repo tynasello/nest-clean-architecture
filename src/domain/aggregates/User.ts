@@ -2,16 +2,16 @@ import { Result } from '@application/logic/Result';
 import { AggregateRoot } from '@domain/AggregateRoot';
 import { UserCreatedEvent } from '@domain/events/UserCreatedEvent';
 import { UniqueEntityId } from '@domain/UniqueEntityId';
-import { UserId } from '@domain/value-objects/user/UserId';
 import { UserPassword } from '@domain/value-objects/user/UserPassword';
 import { UserProfileColor } from '@domain/value-objects/user/UserProfileColor';
 import { UserUsername } from '@domain/value-objects/user/UserUsername';
 
 interface UserProps {
-  id?: UserId;
+  id?: string;
   username: UserUsername;
   password: UserPassword;
-  profile_color?: UserProfileColor;
+  refreshToken?: string;
+  profileColor?: UserProfileColor;
 }
 
 export class User extends AggregateRoot<UserProps> {
@@ -23,14 +23,15 @@ export class User extends AggregateRoot<UserProps> {
     props: UserProps,
     entityId?: UniqueEntityId,
   ): Result<User> {
-    const { id, username, password, profile_color } = props;
+    const { id, username, password, refreshToken, profileColor } = props;
 
     const user = new User(
       {
         id,
         username,
         password,
-        profile_color,
+        refreshToken,
+        profileColor,
       },
       entityId,
     );

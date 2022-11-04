@@ -1,30 +1,32 @@
+import { UserDto } from '@application/contracts/dtos/user-auth/User.dto';
 import { BaseMapper } from '@application/logic/BaseMapper';
+import { Guard } from '@application/logic/Guard';
 import { Result } from '@application/logic/Result';
 import { User } from '@domain/aggregates/User';
-import { UserId } from '@domain/value-objects/user/UserId';
 import { UserPassword } from '@domain/value-objects/user/UserPassword';
 import { UserProfileColor } from '@domain/value-objects/user/UserProfileColor';
 import { UserUsername } from '@domain/value-objects/user/UserUsername';
-import { UserDto } from '@interface-adapters/dal/dtos/User.dto';
 
 export class UserMap implements BaseMapper<User> {
   toDomain(raw: any): User {
-    const id_or_error = UserId.create({ value: raw.id });
-    const username_or_error = UserUsername.create({
+    const { id, refreshToken } = raw;
+    const idOrError = Guard.againstNullOrUndefined(id, 'id');
+
+    const usernameOrError = UserUsername.create({
       value: raw.username,
     });
-    const password_or_error = UserPassword.create({
+    const passwordOrError = UserPassword.create({
       value: raw.password,
     });
-    const profile_color_or_error = UserProfileColor.create({
-      value: raw.profile_color,
+    const profileColorOrError = UserProfileColor.create({
+      value: raw.profileColor,
     });
 
     const combinedPropsResult = Result.combine([
-      id_or_error,
-      username_or_error,
-      password_or_error,
-      profile_color_or_error,
+      idOrError,
+      usernameOrError,
+      passwordOrError,
+      profileColorOrError,
     ]);
 
     if (combinedPropsResult.isFailure) {
@@ -32,40 +34,43 @@ export class UserMap implements BaseMapper<User> {
       return null;
     }
 
-    const id = id_or_error.getValue();
-    const username = username_or_error.getValue();
-    const password = password_or_error.getValue();
-    const profile_color = profile_color_or_error.getValue();
+    const username = usernameOrError.getValue();
+    const password = passwordOrError.getValue();
+    const profileColor = profileColorOrError.getValue();
 
     const userOrError = User.create({
       id,
       username,
       password,
-      profile_color,
+      refreshToken,
+      profileColor,
     });
 
     if (userOrError.isFailure) {
-      console.log(userOrError.getError());
+      userOrError.getError();
     }
     return userOrError.isSuccess ? userOrError.getValue() : null;
   }
 
   toPersistence(user: User): any {
-    const { username, password, profile_color } = user.props;
+    const { username, password, profileColor } = user.props;
     return {
       username: username.value,
       password: password.value,
-      profile_color: profile_color.value,
+      refreshToken: '',
+      profileColor: profileColor.value,
     };
   }
 
   toDTO(user: User): any {
-    const { id, username, password, profile_color } = user.props;
+    const { id, username, password, refreshToken, profileColor } = user.props;
+
     return UserDto.create({
-      id: id.value,
+      id: id,
       username: username.value,
       password: password.value,
-      profile_color: profile_color.value,
+      refreshToken: refreshToken,
+      profileColor: profileColor.value,
     });
   }
 }

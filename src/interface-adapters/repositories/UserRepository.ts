@@ -7,10 +7,10 @@ import { DatabaseService } from '@interface-adapters/Database.sevice';
 import { UserGateway } from '@interface-adapters/gateways/User.gateway';
 import { Inject, Injectable } from '@nestjs/common';
 
-interface ExistsProps {
+type IdentifierProps = {
   id?: number;
   username?: string;
-}
+};
 
 @Injectable()
 export class UserRepository implements IUserRepository {
@@ -20,7 +20,7 @@ export class UserRepository implements IUserRepository {
     private readonly userGateway: UserGateway,
   ) {}
 
-  public async exists({ id, username }: ExistsProps): Promise<boolean> {
+  public async exists({ id, username }: IdentifierProps): Promise<boolean> {
     const userExists = await this.databaseService.findUnique('user', {
       id,
       username,
@@ -37,9 +37,13 @@ export class UserRepository implements IUserRepository {
     return users;
   }
 
-  public async getOneById(userId: string): Promise<User | null> {
+  public async getOneByIdentifier({
+    id,
+    username,
+  }: IdentifierProps): Promise<User | null> {
     const collectedUser = await this.databaseService.findUnique('user', {
-      id: userId,
+      id: id,
+      username: username,
     });
     const user = this.userMap.toDomain(collectedUser);
     return user;
@@ -61,5 +65,15 @@ export class UserRepository implements IUserRepository {
     );
 
     return user;
+  }
+
+  public async updateUser(username: string, newUserProps: any): Promise<User> {
+    const updatedUser = await this.databaseService.update(
+      'user',
+      { username: username },
+      newUserProps,
+    );
+
+    return this.userMap.toDomain(updatedUser);
   }
 }

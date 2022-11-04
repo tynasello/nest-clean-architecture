@@ -13,8 +13,6 @@ export class UserPassword {
     this.value = props.value;
   }
 
-  //* bcrypt logic
-
   public static isValidPassword(password: string): boolean {
     if (password.length > 5) {
       return true;

@@ -11,24 +11,28 @@ export class UserDto {
 
   password: string;
 
-  profile_color?: string;
+  refreshToken?: string;
+
+  profileColor?: string;
 
   private constructor(props: any) {
-    const { id, username, password, profile_color } = props;
+    const { id, username, password, refreshToken, profileColor } = props;
     this.id = id;
     this.username = username;
     this.password = password;
-    this.profile_color = profile_color;
+    this.refreshToken = refreshToken;
+    this.profileColor = profileColor;
   }
 
   public static create(props: any): UserDto {
-    const { id, username, password, profile_color } = props;
+    const { id, username, password, refreshToken, profileColor } = props;
 
     const userDto = new UserDto({
       id,
       username,
       password,
-      profile_color,
+      refreshToken,
+      profileColor,
     });
     return userDto;
   }

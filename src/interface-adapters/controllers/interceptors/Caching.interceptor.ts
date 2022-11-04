@@ -18,7 +18,7 @@ export class CachingInterceptor implements NestInterceptor {
     if (context.getType() === 'http') {
       const http = context.switchToHttp();
       const request = http.getRequest();
-
+      console.log(http);
       const method = request.method;
       const url = request.url;
 

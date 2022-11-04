@@ -1,37 +1,30 @@
 import { BaseController } from '@application/logic/BaseController';
+import { BaseMapper } from '@application/logic/BaseMapper';
+import { Result } from '@application/logic/Result';
 import { UserService } from '@application/use-cases/User.service';
-import { CachingInterceptor } from '@interface-adapters/interceptors/Caching.interceptor';
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  UseInterceptors,
-} from '@nestjs/common';
+import { User } from '@domain/aggregates/User';
+import { AccessTokenGuard } from '@interface-adapters/controllers/guards/AccessToken.guard';
+import { Controller, Get, Inject, UseGuards } from '@nestjs/common';
+import { GetUserFromReq } from './decorators/GetUserFromReq.decorator';
 
-@UseInterceptors(CachingInterceptor)
 @Controller('user')
 export class UserController extends BaseController {
-  constructor(private readonly userService: UserService) {
+  constructor(
+    private readonly userService: UserService,
+    @Inject('BaseMapper<User>') private userMap: BaseMapper<User>,
+  ) {
     super();
   }
 
-  @Get('all')
-  public async getUsers(): Promise<any> {
-    const result = await this.userService.getUsers();
-    return this.handleResult(result);
-  }
-
-  @Get('byId/:userId')
-  public async getUserById(@Param('userId') userId: string): Promise<any> {
-    const result = await this.userService.getUserById(userId);
-    return this.handleResult(result);
-  }
-
-  @Post('create')
-  public async createUser(@Body() createUserDto: any): Promise<any> {
-    const result = await this.userService.createUser(createUserDto);
-    return this.handleResult(result);
+  @UseGuards(AccessTokenGuard)
+  @Get('byUsername')
+  public async getUserByUsername(
+    @GetUserFromReq('username') username: string,
+  ): Promise<any> {
+    const userOrError = await this.userService.getUserByUsername(username);
+    const userDtoOrError = userOrError.isSuccess
+      ? Result.ok(this.userMap.toDTO(userOrError.getValue()))
+      : Result.fail(userOrError.getError());
+    return this.handleResult(userDtoOrError);
   }
 }

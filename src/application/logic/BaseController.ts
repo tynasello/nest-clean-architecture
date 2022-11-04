@@ -29,13 +29,13 @@ export abstract class BaseController {
 
       case CUSTOM_ERRORS.AUTHENTICATION_ERROR:
         throw new HttpException(
-          `Bad user input: ${msg}`,
+          `Authentication error: ${msg}`,
           HttpStatus.UNAUTHORIZED,
         );
 
       default:
         throw new HttpException(
-          `Internal servor error: ${msg}`,
+          `Internal server error: ${msg}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
     }
