@@ -1,13 +1,12 @@
-import { SignupUserDto } from '@application/contracts/dtos/user-auth/SignupUser.dto';
-import { UpdateUserDto } from '@application/contracts/dtos/user-auth/UpdateUser.dto';
+import { SignupUserDto } from '@application/contracts/dtos/user/SignupUser.dto';
+import { UpdateUserDto } from '@application/contracts/dtos/user/UpdateUser.dto';
 import { Guard } from '@application/logic/Guard';
 import { Result } from '@application/logic/Result';
-import { User } from '@domain/aggregates/User';
 import { CUSTOM_ERRORS } from '@domain/CustomErrors';
+import { User } from '@domain/entities/User';
 import { IUserRepository } from '@domain/interfaces/IUserRepository';
-import { UserPassword } from '@domain/value-objects/user/UserPassword';
-import { UserProfileColor } from '@domain/value-objects/user/UserProfileColor';
 import { UserUsername } from '@domain/value-objects/user/UserUsername';
+import { UserMap } from '@interface-adapters/dal/mappers/UserMap';
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -46,43 +45,14 @@ export class UserService {
   // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   async createUser(createUserDto: SignupUserDto): Promise<Result<any>> {
-    const usernameOrError = UserUsername.create({
-      value: createUserDto.username,
-    });
-    const passwordOrError = UserPassword.create({
-      value: createUserDto.password,
-    });
-    const profileColorOrError = UserProfileColor.create({
-      value: createUserDto.profileColor,
-    });
-
-    const combinedPropsResult = Result.combine([
-      usernameOrError,
-      passwordOrError,
-      profileColorOrError,
-    ]);
-
-    if (combinedPropsResult.isFailure) {
-      return Result.fail(combinedPropsResult.getError());
-    }
-
-    const username = usernameOrError.getValue();
-    const password = passwordOrError.getValue();
-    const profileColor = profileColorOrError.getValue();
-
-    const userOrError = User.create({
-      username,
-      password,
-      profileColor,
-    });
+    const userOrError = UserMap.dtoToDomain(createUserDto);
 
     if (userOrError.isFailure) {
-      const error = userOrError.getError();
-      return Result.fail(error);
+      return Result.fail(userOrError.getError());
     }
 
     // user entity created...
-    let user = userOrError.getValue() as User;
+    let user = userOrError.getValue();
 
     // check unique username constraint met
     const userExists = await this.userRepository.exists({

@@ -1,65 +1,32 @@
-import { AggregateRoot } from '@domain/AggregateRoot';
-import { GatewayType } from '@domain/Gateway.type';
-import { IDomainEvent } from './IDomainEvent';
+import { LogUserSubscriber } from '@interface-adapters/domain-event-subscribers/LogUser.subscriber';
+import { Injectable } from '@nestjs/common';
 import { IDomainEventSubscriber } from './IDomainEventSubscriber';
 
+export enum DomainEvent {
+  USER_CREATED_EVENT = 'USER_CREATED_EVENT',
+}
+
 type DomainEventsToSubscribersMap = {
-  domainEvent: IDomainEvent;
+  domainEvent: DomainEvent;
   subscribers: IDomainEventSubscriber[];
 };
 
+@Injectable()
 export class DomainEventManager {
-  private static domainEventsToSubscribersMap: DomainEventsToSubscribersMap[] =
-    [];
+  constructor(private readonly logUserSubscriber: LogUserSubscriber) {}
 
-  public static registerDomainEvent(event: IDomainEvent) {
-    const eventToListenersMap = this.domainEventsToSubscribersMap.find(
-      (etl) => etl.domainEvent.constructor.name === event.constructor.name,
-    );
-    if (!eventToListenersMap) {
-      this.domainEventsToSubscribersMap.push({
-        domainEvent: event,
-        subscribers: [],
-      });
-    }
-  }
+  private domainEventsToSubscribersMap: DomainEventsToSubscribersMap[] = [
+    {
+      domainEvent: DomainEvent.USER_CREATED_EVENT,
+      subscribers: [this.logUserSubscriber],
+    },
+  ];
 
-  public static subscribeToDomainEvent(
-    eventName: string,
-    listener: IDomainEventSubscriber,
-  ) {
-    this.domainEventsToSubscribersMap
-      .find((etl) => etl.domainEvent.constructor.name === eventName)
-      ?.subscribers.push(listener);
-  }
+  public fireDomainEvent(event: DomainEvent, payload?: any) {
+    const subscribers = this.domainEventsToSubscribersMap.find(
+      (a) => a.domainEvent === event,
+    ).subscribers;
 
-  public static unsubscribeFromDomainEvent(
-    eventName: string,
-    listenerName: string,
-  ) {
-    this.domainEventsToSubscribersMap
-      .find((etl) => etl.domainEvent.constructor.name === eventName)
-      ?.subscribers.filter((etl) => etl.constructor.name !== listenerName);
-  }
-
-  public static clearSubscriptionsForDomainEvent(eventName: string) {
-    this.domainEventsToSubscribersMap =
-      this.domainEventsToSubscribersMap.filter(
-        (etl) => etl.domainEvent.constructor.name !== eventName,
-      );
-  }
-
-  public static notifySubscribersOfDomainEvent(
-    eventName: string,
-    gateway?: GatewayType,
-    aggregate?: AggregateRoot<any>,
-  ) {
-    const eventListenerMap = this.domainEventsToSubscribersMap.find(
-      (etl) => etl.domainEvent.constructor.name === eventName,
-    );
-
-    eventListenerMap.subscribers.forEach((etl) =>
-      etl.update(gateway, aggregate),
-    );
+    subscribers.forEach((subscriber) => subscriber.update(event, payload));
   }
 }

@@ -1,19 +1,72 @@
-import { User } from '@domain/aggregates/User';
+import { UserService } from '@application/use-cases/User.service';
+import { User } from '@domain/entities/User';
+import { DomainEvent } from '@domain/events/DomainEventManager';
 import { IUserGateway } from '@domain/interfaces/IUserGateway';
-import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
-import { Namespace } from 'socket.io';
+import { UserMap } from '@interface-adapters/dal/mappers/UserMap';
+import { AuthTokenService } from '@interface-adapters/services/AuthToken.service';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import {
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  WebSocketGateway,
+  WebSocketServer,
+} from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
 
+@Injectable()
 @WebSocketGateway({ namespace: 'user-events' })
-export class UserGateway implements IUserGateway {
+export class UserGateway
+  implements OnGatewayConnection, OnGatewayDisconnect, IUserGateway
+{
   @WebSocketServer()
-  server: Namespace;
+  server: Server;
 
-  // @SubscribeMessage('message')
-  // handleMessage(@MessageBody() message: string): void {
-  //   this.server.emit('message', message);
-  // }
+  user: User;
 
-  public emitUserCreated(event: string, user: User) {
-    this.server.emit(event, { user });
+  constructor(
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService,
+    private readonly authTokenService: AuthTokenService,
+  ) {}
+
+  public async handleConnection(socket: Socket) {
+    console.log('WS Connection');
+    try {
+      const authorizationHeader: string =
+        socket.handshake.headers.authorization;
+      const accessToken = authorizationHeader.split(' ')[1];
+      const jwtPayload = this.authTokenService.decodeJwt(accessToken);
+
+      const exp = jwtPayload.exp;
+      if (Date.now() >= exp * 1000) this.disconnect(socket);
+
+      const username = jwtPayload.username;
+      const user = await this.userService.getUserByUsername(username);
+
+      if (user.isFailure) this.disconnect(socket);
+      this.user = user.getValue();
+    } catch {
+      return this.disconnect(socket);
+    }
+
+    return;
+  }
+
+  public async handleDisconnect() {
+    console.log('WS Disconnect');
+  }
+
+  private disconnect(socket: Socket) {
+    socket.emit('Error', new UnauthorizedException());
+    socket.disconnect();
+  }
+
+  public emitUserCreated(event: DomainEvent, user?: User) {
+    this.server.emit(event, user ? UserMap.toDTO(user) : null);
   }
 }

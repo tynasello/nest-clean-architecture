@@ -1,14 +1,14 @@
-import { LoginUserDto } from '@application/contracts/dtos/user-auth/LoginUser.dto';
-import { RefreshAccessTokenDto } from '@application/contracts/dtos/user-auth/RefreshAccessToken.dto';
-import { SignupUserDto } from '@application/contracts/dtos/user-auth/SignupUser.dto';
+import { LoginUserDto } from '@application/contracts/dtos/user/LoginUser.dto';
+import { RefreshAccessTokenDto } from '@application/contracts/dtos/user/RefreshAccessToken.dto';
+import { SignupUserDto } from '@application/contracts/dtos/user/SignupUser.dto';
 import { Guard } from '@application/logic/Guard';
 import { Result } from '@application/logic/Result';
-import { User } from '@domain/aggregates/User';
 import { CUSTOM_ERRORS } from '@domain/CustomErrors';
+import { User } from '@domain/entities/User';
 import { UserPassword } from '@domain/value-objects/user/UserPassword';
-import { HashService } from '@interface-adapters/Hash.service';
+import { AuthTokenService } from '@interface-adapters/services/AuthToken.service';
+import { HashService } from '@interface-adapters/services/Hash.service';
 import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { UserService } from './User.service';
 
 type AuthTokens = { accessToken: string; refreshToken: string };
@@ -17,7 +17,7 @@ type AuthTokens = { accessToken: string; refreshToken: string };
 export class AuthService {
   constructor(
     private readonly userService: UserService,
-    private readonly jwtService: JwtService,
+    private readonly authTokenService: AuthTokenService,
   ) {}
 
   public async login(loginUserDto: LoginUserDto): Promise<Result<any>> {
@@ -143,9 +143,10 @@ export class AuthService {
   }
 
   private async createAccessToken(user: User): Promise<string> {
-    return await this.jwtService.signAsync(
+    return await this.authTokenService.signJwt(
       {
         username: user.props.username.value,
+        signedAt: Date.now(),
         sub: user.props.id,
       },
       {
@@ -156,9 +157,10 @@ export class AuthService {
   }
 
   private async createRefreshToken(user: User): Promise<string> {
-    return await this.jwtService.signAsync(
+    return await this.authTokenService.signJwt(
       {
         username: user.props.username.value,
+        signedAt: Date.now(),
         sub: user.props.id,
       },
       {

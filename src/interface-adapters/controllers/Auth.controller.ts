@@ -1,22 +1,17 @@
-import { AuthTokensDto } from '@application/contracts/dtos/user-auth/AuthTokens.dto';
-import { LoginUserDto } from '@application/contracts/dtos/user-auth/LoginUser.dto';
-import { SignupUserDto } from '@application/contracts/dtos/user-auth/SignupUser.dto';
+import { AuthTokensDto } from '@application/contracts/dtos/user/AuthTokens.dto';
+import { LoginUserDto } from '@application/contracts/dtos/user/LoginUser.dto';
+import { SignupUserDto } from '@application/contracts/dtos/user/SignupUser.dto';
 import { BaseController } from '@application/logic/BaseController';
-import { BaseMapper } from '@application/logic/BaseMapper';
 import { Result } from '@application/logic/Result';
 import { AuthService } from '@application/use-cases/Auth.service';
-import { User } from '@domain/aggregates/User';
-import { Body, Controller, Inject, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { GetUserFromReq } from './decorators/GetUserFromReq.decorator';
 import { AccessTokenGuard } from './guards/AccessToken.guard';
 import { RefreshTokenGuard } from './guards/RefeshToken.guard';
 
 @Controller('auth')
 export class AuthController extends BaseController {
-  constructor(
-    private readonly authService: AuthService,
-    @Inject('BaseMapper<User>') private userMap: BaseMapper<User>,
-  ) {
+  constructor(private readonly authService: AuthService) {
     super();
   }
 

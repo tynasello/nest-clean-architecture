@@ -11,9 +11,9 @@ export class UserDto {
 
   password: string;
 
-  refreshToken?: string;
+  refreshToken: string;
 
-  profileColor?: string;
+  profileColor: string;
 
   private constructor(props: any) {
     const { id, username, password, refreshToken, profileColor } = props;

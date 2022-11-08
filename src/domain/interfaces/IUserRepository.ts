@@ -1,4 +1,4 @@
-import { User } from '@domain/aggregates/User';
+import { User } from '@domain/entities/User';
 import { IRepository } from '@domain/interfaces/IRepository';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

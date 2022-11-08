@@ -1,6 +1,5 @@
-import { AggregateRoot } from '@domain/AggregateRoot';
-import { GatewayType } from '@domain/Gateway.type';
+import { DomainEvent } from './DomainEventManager';
 
 export interface IDomainEventSubscriber {
-  update(gateway?: GatewayType, aggregate?: AggregateRoot<any>): void;
+  update(event: DomainEvent, payload: any): void;
 }

@@ -1,5 +1,5 @@
-export interface BaseMapper<EntityT> {
-  toDomain(raw: any): EntityT;
-  toPersistence(t: EntityT): any;
-  toDTO(t: EntityT): any;
+export abstract class BaseMapper<EntityT> {
+  public abstract toDomain(raw: any): EntityT;
+  public abstract toPersistence(t: EntityT): any;
+  public abstract toDTO(t: EntityT): any;
 }

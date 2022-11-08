@@ -1,4 +1,4 @@
-import { CacheService } from '@interface-adapters/Cache.service';
+import { CacheService } from '@interface-adapters/services/Cache.service';
 import {
   CallHandler,
   ExecutionContext,
@@ -18,9 +18,8 @@ export class CachingInterceptor implements NestInterceptor {
     if (context.getType() === 'http') {
       const http = context.switchToHttp();
       const request = http.getRequest();
-      console.log(http);
+
       const method = request.method;
-      const url = request.url;
 
       if (method !== 'GET') {
         this.cacheService.reset();
@@ -28,7 +27,10 @@ export class CachingInterceptor implements NestInterceptor {
         return next.handle();
       }
 
-      const cacheKey = JSON.stringify(url);
+      const url = request.url;
+      const notableHeaders = request.headers.authorization;
+
+      const cacheKey = JSON.stringify(url + '/' + notableHeaders);
 
       const cachedData = await this.cacheService.get(cacheKey);
       if (cachedData) {

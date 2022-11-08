@@ -1,4 +1,4 @@
-import { User } from '@domain/aggregates/User';
+import { User } from '@domain/entities/User';
 
 export interface IUserGateway {
   emitUserCreated(event: string, user: User): void;

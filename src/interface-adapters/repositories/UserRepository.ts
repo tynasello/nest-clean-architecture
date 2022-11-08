@@ -1,11 +1,12 @@
-import { BaseMapper } from '@application/logic/BaseMapper';
-import { User } from '@domain/aggregates/User';
-import { DomainEventManager } from '@domain/events/DomainEventManager';
-import { UserCreatedEvent } from '@domain/events/UserCreatedEvent';
+import { User } from '@domain/entities/User';
+import {
+  DomainEvent,
+  DomainEventManager,
+} from '@domain/events/DomainEventManager';
 import { IUserRepository } from '@domain/interfaces/IUserRepository';
-import { DatabaseService } from '@interface-adapters/Database.sevice';
-import { UserGateway } from '@interface-adapters/gateways/User.gateway';
-import { Inject, Injectable } from '@nestjs/common';
+import { UserMap } from '@interface-adapters/dal/mappers/UserMap';
+import { DatabaseService } from '@interface-adapters/services/Database.sevice';
+import { Injectable } from '@nestjs/common';
 
 type IdentifierProps = {
   id?: number;
@@ -16,22 +17,21 @@ type IdentifierProps = {
 export class UserRepository implements IUserRepository {
   constructor(
     private readonly databaseService: DatabaseService,
-    @Inject('BaseMapper<User>') private readonly userMap: BaseMapper<User>,
-    private readonly userGateway: UserGateway,
+    private readonly domainEventManager: DomainEventManager,
   ) {}
 
   public async exists({ id, username }: IdentifierProps): Promise<boolean> {
-    const userExists = await this.databaseService.findUnique('user', {
+    const user = await this.databaseService.findUnique('user', {
       id,
       username,
     });
-    return !!userExists === true;
+    return !!user === true;
   }
 
   public async getAll(): Promise<User[]> {
     const collectedUsers = await this.databaseService.findMany('user');
     const users = collectedUsers.map((user: any) =>
-      this.userMap.toDomain(user),
+      UserMap.persistanceToDomain(user),
     );
 
     return users;
@@ -45,24 +45,22 @@ export class UserRepository implements IUserRepository {
       id: id,
       username: username,
     });
-    const user = this.userMap.toDomain(collectedUser);
+    const user = UserMap.persistanceToDomain(collectedUser);
     return user;
   }
 
   public async create(user: User): Promise<User> {
     // map user to persistance
-    const rawUser = this.userMap.toPersistence(user);
+    const rawUser = UserMap.toPersistence(user);
 
     // save user using ORM
     const createdUser = await this.databaseService.create('user', rawUser);
 
-    user = this.userMap.toDomain(createdUser);
+    user = UserMap.persistanceToDomain(createdUser);
 
-    DomainEventManager.notifySubscribersOfDomainEvent(
-      UserCreatedEvent.name,
-      this.userGateway,
+    this.domainEventManager.fireDomainEvent(DomainEvent.USER_CREATED_EVENT, {
       user,
-    );
+    });
 
     return user;
   }
@@ -74,6 +72,6 @@ export class UserRepository implements IUserRepository {
       newUserProps,
     );
 
-    return this.userMap.toDomain(updatedUser);
+    return UserMap.persistanceToDomain(updatedUser);
   }
 }
