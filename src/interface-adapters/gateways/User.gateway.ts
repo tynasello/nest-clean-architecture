@@ -35,7 +35,7 @@ export class UserGateway
   ) {}
 
   public async handleConnection(socket: Socket) {
-    console.log('WS Connection');
+    console.log('WS Connected');
     try {
       const authorizationHeader: string =
         socket.handshake.headers.authorization;
@@ -57,11 +57,12 @@ export class UserGateway
     return;
   }
 
-  public async handleDisconnect() {
-    console.log('WS Disconnect');
+  public handleDisconnect() {
+    return;
   }
 
   private disconnect(socket: Socket) {
+    console.log('WS Disconnected');
     socket.emit('Error', new UnauthorizedException());
     socket.disconnect();
   }

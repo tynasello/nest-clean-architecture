@@ -20,7 +20,6 @@ export class CachingInterceptor implements NestInterceptor {
       const request = http.getRequest();
 
       const method = request.method;
-
       if (method !== 'GET') {
         this.cacheService.reset();
         // console.log('Resetting cache (from CachingInterceptor)');
@@ -28,9 +27,9 @@ export class CachingInterceptor implements NestInterceptor {
       }
 
       const url = request.url;
-      const notableHeaders = request.headers.authorization;
+      const cookies = JSON.stringify(request.cookies);
 
-      const cacheKey = JSON.stringify(url + '/' + notableHeaders);
+      const cacheKey = JSON.stringify(url + '/' + cookies);
 
       const cachedData = await this.cacheService.get(cacheKey);
       if (cachedData) {

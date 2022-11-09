@@ -4,10 +4,17 @@ import { SignupUserDto } from '@application/contracts/dtos/user/SignupUser.dto';
 import { BaseController } from '@application/logic/BaseController';
 import { Result } from '@application/logic/Result';
 import { AuthService } from '@application/use-cases/Auth.service';
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { GetUserFromReq } from './decorators/GetUserFromReq.decorator';
 import { AccessTokenGuard } from './guards/AccessToken.guard';
 import { RefreshTokenGuard } from './guards/RefeshToken.guard';
+import { SetCookiesInterceptor } from './interceptors/SetCookies.interceptor';
 
 @Controller('auth')
 export class AuthController extends BaseController {
@@ -15,6 +22,7 @@ export class AuthController extends BaseController {
     super();
   }
 
+  @UseInterceptors(SetCookiesInterceptor)
   @Post('login')
   public async login(@Body() loginUserDto: LoginUserDto): Promise<any> {
     const authTokensOrError = await this.authService.login(loginUserDto);
@@ -24,6 +32,7 @@ export class AuthController extends BaseController {
     return this.handleResult(authTokensDtoOrError);
   }
 
+  @UseInterceptors(SetCookiesInterceptor)
   @Post('signup')
   public async signup(@Body() signupUserDto: SignupUserDto): Promise<any> {
     const authTokensOrError = await this.authService.signup(signupUserDto);
@@ -33,6 +42,7 @@ export class AuthController extends BaseController {
     return this.handleResult(authTokensDtoOrError);
   }
 
+  @UseInterceptors(SetCookiesInterceptor)
   @UseGuards(AccessTokenGuard)
   @Post('logout')
   public async logout(
@@ -42,6 +52,7 @@ export class AuthController extends BaseController {
     return this.handleResult(result);
   }
 
+  @UseInterceptors(SetCookiesInterceptor)
   @UseGuards(RefreshTokenGuard)
   @Post('refresh-tokens')
   public async refreshTokens(
