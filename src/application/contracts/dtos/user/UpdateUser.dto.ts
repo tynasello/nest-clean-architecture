@@ -1,4 +1,6 @@
 export class UpdateUserDto {
-  username?: string;
+  username: string;
   refreshToken?: string;
+  password?: string;
+  profileColor?: string;
 }

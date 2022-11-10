@@ -1,17 +1,16 @@
+import { AuthTokensDto } from '@application/contracts/dtos/user/AuthTokens.dto';
 import { LoginUserDto } from '@application/contracts/dtos/user/LoginUser.dto';
 import { RefreshAccessTokenDto } from '@application/contracts/dtos/user/RefreshAccessToken.dto';
 import { SignupUserDto } from '@application/contracts/dtos/user/SignupUser.dto';
-import { Guard } from '@application/logic/Guard';
+import { GuardProps } from '@application/logic/Guard';
 import { Result } from '@application/logic/Result';
-import { CUSTOM_ERRORS } from '@domain/CustomErrors';
+import { AuthTokenService } from '@application/services/AuthToken.service';
+import { HashService } from '@application/services/Hash.service';
+import { UserService } from '@application/use-cases/User.service';
 import { User } from '@domain/entities/User';
+import { CUSTOM_ERRORS } from '@domain/errors/CustomErrors';
 import { UserPassword } from '@domain/value-objects/user/UserPassword';
-import { AuthTokenService } from '@interface-adapters/services/AuthToken.service';
-import { HashService } from '@interface-adapters/services/Hash.service';
 import { Injectable } from '@nestjs/common';
-import { UserService } from './User.service';
-
-type AuthTokens = { accessToken: string; refreshToken: string };
 
 @Injectable()
 export class AuthService {
@@ -20,17 +19,20 @@ export class AuthService {
     private readonly authTokenService: AuthTokenService,
   ) {}
 
-  public async login(loginUserDto: LoginUserDto): Promise<Result<any>> {
-    const usernameOrError = Guard.againstNullOrUndefined(
-      loginUserDto.username,
+  public async login(
+    loginUserDto: LoginUserDto,
+  ): Promise<Result<AuthTokensDto>> {
+    const { username, password } = loginUserDto;
+    const usernameOrError = GuardProps.againstNullOrUndefined(
+      username,
       'username',
     );
-    const passwordOrError = Guard.againstNullOrUndefined(
-      loginUserDto.password,
+    const passwordOrError = GuardProps.againstNullOrUndefined(
+      password,
       'password',
     );
 
-    const combinedPropsResult = Result.combine([
+    const combinedPropsResult = Result.combineResults([
       usernameOrError,
       passwordOrError,
     ]);
@@ -39,16 +41,14 @@ export class AuthService {
       return Result.fail(combinedPropsResult.getError());
     }
 
-    const userOrError = await this.userService.getUserByUsername(
-      loginUserDto.username,
-    );
+    const userOrError = await this.userService.getUserByUsername(username);
 
     if (userOrError.isFailure) return Result.fail(userOrError.getError());
 
-    const user = userOrError.getValue() as User;
+    const user = userOrError.getValue();
 
-    const passwordMatches = await HashService.compare(
-      loginUserDto.password,
+    const passwordMatches = HashService.compare(
+      password,
       user.props.password.value,
     );
 
@@ -60,72 +60,73 @@ export class AuthService {
 
     const userAuthTokens = await this.createTokens(user);
 
-    await this.userService.updateUserRefreshToken({
+    await this.userService.updateUser({
       username: user.props.username.value,
-      refreshToken: await HashService.hash(userAuthTokens.refreshToken),
+      refreshToken: HashService.hash(userAuthTokens.refreshToken),
     });
 
     return Result.ok(userAuthTokens);
   }
 
-  public async signup(signupUserDto: SignupUserDto): Promise<Result<any>> {
-    const passwordOrError = UserPassword.create({
-      value: signupUserDto.password,
-    });
+  public async signup(
+    signupUserDto: SignupUserDto,
+  ): Promise<Result<AuthTokensDto>> {
+    const { password } = signupUserDto;
+    const passwordOrError = UserPassword.create(password);
 
     if (passwordOrError.isFailure)
       return Result.fail(passwordOrError.getError());
 
-    const hashedUserPassword = await HashService.hash(signupUserDto.password);
-
     const userOrError = await this.userService.createUser({
       ...signupUserDto,
-      password: hashedUserPassword,
+      password: HashService.hash(password),
     });
 
     if (userOrError.isFailure) return Result.fail(userOrError.getError());
 
-    const user = userOrError.getValue() as User;
+    const user = userOrError.getValue();
 
     const userAuthTokens = await this.createTokens(user);
 
-    await this.userService.updateUserRefreshToken({
+    this.userService.updateUser({
       username: user.props.username.value,
-      refreshToken: await HashService.hash(userAuthTokens.refreshToken),
+      refreshToken: HashService.hash(userAuthTokens.refreshToken),
     });
 
     return Result.ok(userAuthTokens);
   }
 
   public async logout(username: string): Promise<Result<any>> {
-    await this.userService.updateUserRefreshToken({
-      username: username,
-      refreshToken: '',
+    const updatedUserOrError = await this.userService.updateUser({
+      username,
+      refreshToken: null,
     });
+
+    if (updatedUserOrError.isFailure)
+      return Result.fail(updatedUserOrError.getError());
 
     return Result.ok();
   }
 
   public async refreshTokens(
     refreshAccessTokenDto: RefreshAccessTokenDto,
-  ): Promise<Result<any>> {
-    const userOrError = await this.userService.getUserByUsername(
-      refreshAccessTokenDto.username,
-    );
+  ): Promise<Result<Pick<AuthTokensDto, 'accessToken'>>> {
+    const { username, refreshToken } = refreshAccessTokenDto;
+    const userOrError = await this.userService.getUserByUsername(username);
 
-    if (userOrError.isFailure) return userOrError;
+    if (userOrError.isFailure) return Result.fail(userOrError.getError());
 
-    const user = userOrError.getValue() as User;
+    const user = userOrError.getValue();
 
-    const refreshTokenMatches = await HashService.compare(
-      refreshAccessTokenDto.refreshToken,
+    const refreshTokenMatches = HashService.compare(
+      refreshToken,
       user.props.refreshToken,
     );
 
     if (!refreshTokenMatches)
       return Result.fail({
         code: CUSTOM_ERRORS.AUTHENTICATION_ERROR,
-        msg: 'Refresh token invalid',
+        msg: 'Refresh token is invalid',
       });
 
     const newAccessToken = await this.createAccessToken(user);
@@ -135,7 +136,7 @@ export class AuthService {
 
   // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  private async createTokens(user: User): Promise<AuthTokens> {
+  private async createTokens(user: User): Promise<AuthTokensDto> {
     const accessToken = await this.createAccessToken(user);
     const refreshToken = await this.createRefreshToken(user);
 

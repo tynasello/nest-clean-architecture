@@ -1,37 +1,42 @@
 import { SignupUserDto } from '@application/contracts/dtos/user/SignupUser.dto';
 import { UserDto } from '@application/contracts/dtos/user/User.dto';
+import { BaseMapper } from '@application/logic/BaseMapper';
 import { Result } from '@application/logic/Result';
 import { User } from '@domain/entities/User';
+import { Id } from '@domain/value-objects/Id';
 import { UserPassword } from '@domain/value-objects/user/UserPassword';
 import { UserProfileColor } from '@domain/value-objects/user/UserProfileColor';
 import { UserUsername } from '@domain/value-objects/user/UserUsername';
-import { IdService } from '@interface-adapters/services/Id.service';
+import { Injectable } from '@nestjs/common';
 
-export class UserMap {
-  public static persistanceToDomain(raw: any): User | null {
+@Injectable()
+export class UserMap implements BaseMapper<User> {
+  // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+  public persistanceToDomain(raw: any): User | null {
+    const { id, username, password, refreshToken, profileColor } = raw;
     const userOrError = User.create({
-      id: raw.id,
-      username: { value: raw.username },
-      password: { value: raw.password },
-      refreshToken: raw.refreshToken,
-      profileColor: { value: raw.profileColor },
+      id: { value: id },
+      username: { value: username },
+      password: { value: password },
+      refreshToken,
+      profileColor: { value: profileColor },
     });
-
-    return userOrError.isFailure ? null : userOrError.getValue();
+    return userOrError.isSuccess ? userOrError.getValue() : null;
   }
 
-  public static dtoToDomain(createUserDto: SignupUserDto): Result<User> {
-    const usernameOrError = UserUsername.create({
-      value: createUserDto.username,
-    });
-    const passwordOrError = UserPassword.create({
-      value: createUserDto.password,
-    });
-    const profileColorOrError = UserProfileColor.create({
-      value: createUserDto.profileColor,
-    });
+  // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-    const combinedPropsResult = Result.combine([
+  public dtoToDomain(createUserDto: SignupUserDto): Result<User> {
+    const idOrError = Id.create();
+    const usernameOrError = UserUsername.create(createUserDto.username);
+    const passwordOrError = UserPassword.create(createUserDto.password);
+    const profileColorOrError = UserProfileColor.create(
+      createUserDto.profileColor,
+    );
+
+    const combinedPropsResult = Result.combineResults([
+      idOrError,
       usernameOrError,
       passwordOrError,
       profileColorOrError,
@@ -41,17 +46,16 @@ export class UserMap {
       return Result.fail(combinedPropsResult.getError());
     }
 
-    const id = IdService.newId();
+    const id = idOrError.getValue();
     const username = usernameOrError.getValue();
     const password = passwordOrError.getValue();
-    const refreshToken = null;
+
     const profileColor = profileColorOrError.getValue();
 
     const userOrError = User.create({
       id,
       username,
       password,
-      refreshToken,
       profileColor,
     });
 
@@ -64,10 +68,12 @@ export class UserMap {
     return Result.ok(user);
   }
 
-  public static toPersistence(user: User): any {
+  // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+  public domainToPersistence(user: User): any {
     const { id, username, password, refreshToken, profileColor } = user.props;
     return {
-      id: id,
+      id: id.value,
       username: username.value,
       password: password.value,
       refreshToken: refreshToken,
@@ -75,15 +81,18 @@ export class UserMap {
     };
   }
 
-  public static toDTO(user: User): UserDto {
+  // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+  public domainToDTO(user: User): UserDto {
     const { id, username, password, refreshToken, profileColor } = user.props;
 
-    return UserDto.create({
-      id: id,
+    const userDto = UserDto.create({
+      id: id.value,
       username: username.value,
       password: password.value,
       refreshToken: refreshToken,
       profileColor: profileColor.value,
     });
+    return userDto;
   }
 }

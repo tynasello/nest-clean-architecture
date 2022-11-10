@@ -1,9 +1,11 @@
-import { AuthTokensDto } from '@application/contracts/dtos/user/AuthTokens.dto';
 import { LoginUserDto } from '@application/contracts/dtos/user/LoginUser.dto';
 import { SignupUserDto } from '@application/contracts/dtos/user/SignupUser.dto';
 import { BaseController } from '@application/logic/BaseController';
-import { Result } from '@application/logic/Result';
 import { AuthService } from '@application/use-cases/Auth.service';
+import { GetUserFromReq } from '@interface-adapters/controllers/decorators/GetUserFromReq.decorator';
+import { AccessTokenGuard } from '@interface-adapters/controllers/guards/AccessToken.guard';
+import { RefreshTokenGuard } from '@interface-adapters/controllers/guards/RefeshToken.guard';
+import { SetCookiesInterceptor } from '@interface-adapters/controllers/interceptors/SetCookies.interceptor';
 import {
   Body,
   Controller,
@@ -11,10 +13,6 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { GetUserFromReq } from './decorators/GetUserFromReq.decorator';
-import { AccessTokenGuard } from './guards/AccessToken.guard';
-import { RefreshTokenGuard } from './guards/RefeshToken.guard';
-import { SetCookiesInterceptor } from './interceptors/SetCookies.interceptor';
 
 @Controller('auth')
 export class AuthController extends BaseController {
@@ -22,39 +20,33 @@ export class AuthController extends BaseController {
     super();
   }
 
-  @UseInterceptors(SetCookiesInterceptor)
   @Post('login')
-  public async login(@Body() loginUserDto: LoginUserDto): Promise<any> {
-    const authTokensOrError = await this.authService.login(loginUserDto);
-    const authTokensDtoOrError = authTokensOrError.isSuccess
-      ? Result.ok(AuthTokensDto.create(authTokensOrError.getValue()))
-      : Result.fail(authTokensOrError.getError());
-    return this.handleResult(authTokensDtoOrError);
-  }
-
   @UseInterceptors(SetCookiesInterceptor)
-  @Post('signup')
-  public async signup(@Body() signupUserDto: SignupUserDto): Promise<any> {
-    const authTokensOrError = await this.authService.signup(signupUserDto);
-    const authTokensDtoOrError = authTokensOrError.isSuccess
-      ? Result.ok(AuthTokensDto.create(authTokensOrError.getValue()))
-      : Result.fail(authTokensOrError.getError());
+  public async login(@Body() loginUserDto: LoginUserDto): Promise<any> {
+    const authTokensDtoOrError = await this.authService.login(loginUserDto);
     return this.handleResult(authTokensDtoOrError);
   }
 
+  @Post('signup')
+  @UseInterceptors(SetCookiesInterceptor)
+  public async signup(@Body() signupUserDto: SignupUserDto): Promise<any> {
+    const authTokensDtoOrError = await this.authService.signup(signupUserDto);
+    return this.handleResult(authTokensDtoOrError);
+  }
+
+  @Post('logout')
   @UseInterceptors(SetCookiesInterceptor)
   @UseGuards(AccessTokenGuard)
-  @Post('logout')
   public async logout(
     @GetUserFromReq('username') username: string,
   ): Promise<any> {
-    const result = await this.authService.logout(username);
-    return this.handleResult(result);
+    const loggedOutResult = await this.authService.logout(username);
+    return this.handleResult(loggedOutResult);
   }
 
+  @Post('refresh-tokens')
   @UseInterceptors(SetCookiesInterceptor)
   @UseGuards(RefreshTokenGuard)
-  @Post('refresh-tokens')
   public async refreshTokens(
     @GetUserFromReq('username') username: string,
     @GetUserFromReq('refreshToken') refreshToken: string,

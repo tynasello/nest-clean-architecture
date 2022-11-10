@@ -1,19 +1,19 @@
 import { PrismaService } from '@infrastructure/db/prisma/Prisma.service';
 import { Injectable } from '@nestjs/common';
 
-type DatabaseEntities = 'user';
+type DatabaseEntities = 'user' | 'message' | '';
 type DatabaseFilters = any;
 
 @Injectable()
 export class DatabaseService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  public async findUnique(
+  public async findOne(
     databaseEntity: DatabaseEntities,
-    filters: DatabaseFilters,
+    uniqueFilter: DatabaseFilters,
   ): Promise<any> {
     return await this.prismaService[databaseEntity].findUnique({
-      where: { ...filters },
+      where: { ...uniqueFilter },
     });
   }
 
@@ -30,14 +30,23 @@ export class DatabaseService {
     });
   }
 
-  public async update(
+  public async updateMany(
     databaseEntity: DatabaseEntities,
     filters: DatabaseFilters,
     rawData: any,
-  ) {
+  ): Promise<any> {
     return await this.prismaService[databaseEntity].update({
       where: filters,
       data: rawData,
+    });
+  }
+
+  public async deleteMany(
+    databaseEntity: DatabaseEntities,
+    filters: DatabaseFilters,
+  ): Promise<any> {
+    return await this.prismaService[databaseEntity].deleteMany({
+      where: filters,
     });
   }
 }

@@ -1,12 +1,13 @@
+import { JwtPayload } from '@interface-adapters/auth-strategies/accessToken.strategy';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { Strategy } from 'passport-jwt';
-import { JwtPayload } from './accessToken.strategy';
 
 export type JwtPayloadWithRefreshToken = JwtPayload & { refreshToken: string };
 
-function extractRefreshTokenFromCookie(req: Request) {
+export function extractRefreshTokenFromCookie(req: Request) {
   return req && req.cookies ? req.cookies['refreshToken'] : null;
 }
 
@@ -15,10 +16,10 @@ export class RefreshTokenStrategy extends PassportStrategy(
   Strategy,
   'jwt-refresh',
 ) {
-  constructor() {
+  constructor(private readonly configService: ConfigService) {
     super({
       jwtFromRequest: extractRefreshTokenFromCookie,
-      secretOrKey: process.env.REFRESH_TOKEN_SECRET,
+      secretOrKey: configService.get<string>('REFRESH_TOKEN_SECRET'),
       passReqToCallback: true,
     });
   }

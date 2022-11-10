@@ -1,4 +1,5 @@
-import { CacheService } from '@interface-adapters/services/Cache.service';
+import { CacheService } from '@application/services/Cache.service';
+import { HashService } from '@application/services/Hash.service';
 import {
   CallHandler,
   ExecutionContext,
@@ -27,7 +28,7 @@ export class CachingInterceptor implements NestInterceptor {
       }
 
       const url = request.url;
-      const cookies = JSON.stringify(request.cookies);
+      const cookies = HashService.hash(JSON.stringify(request.cookies));
 
       const cacheKey = JSON.stringify(url + '/' + cookies);
 

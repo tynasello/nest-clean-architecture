@@ -1,5 +1,8 @@
-export abstract class BaseMapper<EntityT> {
-  public abstract toDomain(raw: any): EntityT;
-  public abstract toPersistence(t: EntityT): any;
-  public abstract toDTO(t: EntityT): any;
+import { Result } from '@application/logic/Result';
+
+export interface BaseMapper<EntityT> {
+  persistanceToDomain(raw: any): EntityT | null;
+  dtoToDomain(dto: any): Result<EntityT>;
+  domainToPersistence(entity: EntityT): any;
+  domainToDTO(entity: EntityT): any;
 }

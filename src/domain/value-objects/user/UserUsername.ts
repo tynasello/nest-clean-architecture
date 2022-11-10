@@ -1,31 +1,24 @@
-import { Guard } from '@application/logic/Guard';
+import { GuardProps } from '@application/logic/Guard';
 import { Result } from '@application/logic/Result';
-import { CUSTOM_ERRORS } from '@domain/CustomErrors';
+import { CUSTOM_ERRORS } from '@domain/errors/CustomErrors';
+import { ValueObject } from '@domain/primitives/ValueObject';
 
-interface UserUsernameProps {
-  value: string;
-}
+type UserUsernameValue = string;
 
-export class UserUsername {
-  public readonly value: string;
+export class UserUsername extends ValueObject<UserUsernameValue> {
+  private static readonly minUsernameLength = 5;
 
-  private constructor(props: UserUsernameProps) {
-    this.value = props.value;
-  }
-
-  public static isValidUsername(username: string): boolean {
-    if (username.length > 5) {
-      return true;
+  public static isValidUsername(username: UserUsernameValue): boolean {
+    if (username.length < UserUsername.minUsernameLength) {
+      return false;
     }
-    return false;
+    return true;
   }
 
-  public static create(props: UserUsernameProps): Result<UserUsername> {
-    const { value } = props;
+  public static create(value: UserUsernameValue): Result<UserUsername> {
+    const guardResult = GuardProps.againstNullOrUndefined(value, 'username');
 
-    const guardResult = Guard.againstNullOrUndefined(value, 'username');
-
-    if (guardResult.isFailure) return guardResult;
+    if (guardResult.isFailure) return Result.fail(guardResult.getError());
 
     if (!this.isValidUsername(value)) {
       return Result.fail({
@@ -34,10 +27,6 @@ export class UserUsername {
       });
     }
 
-    const userUsername = new UserUsername({
-      value,
-    });
-
-    return Result.ok<UserUsername>(userUsername);
+    return Result.ok<UserUsername>(new UserUsername(value));
   }
 }

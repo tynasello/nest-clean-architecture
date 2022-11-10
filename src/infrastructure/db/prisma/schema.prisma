@@ -12,9 +12,21 @@ datasource db {
 }
 
 model User {
-  id            String  @id @default(uuid())
-  username      String  @unique
-  password      String
-  refreshToken  String?
-  profileColor  String?
+  id                String  @id @default(uuid())
+  username          String  @unique
+  password          String
+  refreshToken      String?
+  profileColor      String
+  sentMessages      Message[] @relation("sentMessages")
+  receivedMessages  Message[] @relation("receivedMessages")
+}
+
+model Message {
+  id                String  @id @default(uuid())
+  content           String
+  createdAt         DateTime  @default(now())
+  sender            User   @relation(name: "sentMessages", fields: [senderId], references: [id])
+  receiver          User   @relation(name: "receivedMessages", fields: [receiverId], references: [id])
+  senderId          String
+  receiverId        String
 }

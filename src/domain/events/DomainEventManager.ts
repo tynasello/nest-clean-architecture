@@ -1,32 +1,38 @@
-import { LogUserSubscriber } from '@interface-adapters/domain-event-subscribers/LogUser.subscriber';
-import { Injectable } from '@nestjs/common';
-import { IDomainEventSubscriber } from './IDomainEventSubscriber';
+import { IDomainEventSubscriber } from '@domain/interfaces/IDomainEventSubscriber';
+import { ILogUserSubscriber } from '@domain/interfaces/subscribers/ILogUserSubscriber';
+import { Inject, Injectable } from '@nestjs/common';
 
-export enum DomainEvent {
+export enum DomainEventEnum {
   USER_CREATED_EVENT = 'USER_CREATED_EVENT',
 }
 
 type DomainEventsToSubscribersMap = {
-  domainEvent: DomainEvent;
+  domainEvent: DomainEventEnum;
   subscribers: IDomainEventSubscriber[];
 };
 
 @Injectable()
 export class DomainEventManager {
-  constructor(private readonly logUserSubscriber: LogUserSubscriber) {}
+  constructor(
+    @Inject('ILogUserSubscriber')
+    private readonly logUserSubscriber: ILogUserSubscriber,
+  ) {}
 
-  private domainEventsToSubscribersMap: DomainEventsToSubscribersMap[] = [
-    {
-      domainEvent: DomainEvent.USER_CREATED_EVENT,
-      subscribers: [this.logUserSubscriber],
-    },
-  ];
+  private readonly domainEventsToSubscribersMap: DomainEventsToSubscribersMap[] =
+    [
+      {
+        domainEvent: DomainEventEnum.USER_CREATED_EVENT,
+        subscribers: [this.logUserSubscriber],
+      },
+    ];
 
-  public fireDomainEvent(event: DomainEvent, payload?: any) {
-    const subscribers = this.domainEventsToSubscribersMap.find(
+  public fireDomainEvent(event: DomainEventEnum, payload: any) {
+    const subscribersOfDomainEvent = this.domainEventsToSubscribersMap.find(
       (a) => a.domainEvent === event,
     ).subscribers;
 
-    subscribers.forEach((subscriber) => subscriber.update(event, payload));
+    subscribersOfDomainEvent.forEach((subscriber) =>
+      subscriber.update(event, payload),
+    );
   }
 }

@@ -1,5 +1,5 @@
 import { Result, ResultError } from '@application/logic/Result';
-import { CUSTOM_ERRORS } from '@domain/CustomErrors';
+import { CUSTOM_ERRORS } from '@domain/errors/CustomErrors';
 import { HttpException, HttpStatus } from '@nestjs/common';
 
 export abstract class BaseController {
@@ -11,10 +11,7 @@ export abstract class BaseController {
   }
 
   public success(dto?: any) {
-    if (dto) {
-      return dto;
-    }
-    return;
+    return dto ? dto : null;
   }
 
   public error(resultError: ResultError) {

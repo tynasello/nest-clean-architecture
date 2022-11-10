@@ -11,10 +11,7 @@ type JwtSignOptions = {
 export class AuthTokenService {
   constructor(private readonly jwtService: JwtService) {}
 
-  public async signJwt(
-    payload: string | object | Buffer,
-    options?: JwtSignOptions,
-  ) {
+  public async signJwt(payload: object, options: JwtSignOptions) {
     return await this.jwtService.signAsync(payload, options);
   }
 

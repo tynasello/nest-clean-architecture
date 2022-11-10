@@ -1,30 +1,35 @@
 import { Result } from '@application/logic/Result';
+import { ValueObject } from '@domain/primitives/ValueObject';
 
-interface UserProfileColorProps {
-  value?: string;
-}
+type UserProfileColorValue = string;
 
-export class UserProfileColor {
-  public readonly value: string;
-
-  private constructor(props: UserProfileColorProps) {
-    this.value = props.value;
-  }
+export class UserProfileColor extends ValueObject<UserProfileColorValue> {
+  private static readonly defaultUserProfileColor = 'gray';
+  private static readonly validProfileColors = [
+    'gray',
+    'blue',
+    'red',
+    'orange',
+    'yellow',
+    'green',
+    'purple',
+  ];
 
   public static isValidProfileColor(profileColor: string): boolean {
-    if (profileColor === 'blue' || profileColor === 'red') {
-      return true;
-    }
+    if (UserProfileColor.validProfileColors.includes(profileColor)) return true;
     return false;
   }
 
-  public static create(props: UserProfileColorProps): Result<UserProfileColor> {
-    const { value } = props;
-
-    const userProfileColor = new UserProfileColor({
-      value: this.isValidProfileColor(value) ? value : 'gray',
-    });
-
-    return Result.ok<UserProfileColor>(userProfileColor);
+  public static create(
+    value?: UserProfileColorValue,
+  ): Result<UserProfileColor> {
+    value = value ? value.toLowerCase() : null;
+    return Result.ok<UserProfileColor>(
+      new UserProfileColor(
+        this.isValidProfileColor(value)
+          ? value
+          : UserProfileColor.defaultUserProfileColor,
+      ),
+    );
   }
 }

@@ -1,11 +1,12 @@
 import { Result } from '@application/logic/Result';
-import { AggregateRoot } from '@domain/AggregateRoot';
+import { AggregateRoot } from '@domain/primitives/AggregateRoot';
+import { Id } from '@domain/value-objects/Id';
 import { UserPassword } from '@domain/value-objects/user/UserPassword';
 import { UserProfileColor } from '@domain/value-objects/user/UserProfileColor';
 import { UserUsername } from '@domain/value-objects/user/UserUsername';
 
 type UserProps = {
-  id: string;
+  id: Id;
   username: UserUsername;
   password: UserPassword;
   refreshToken: string;

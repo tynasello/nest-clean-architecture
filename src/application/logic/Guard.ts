@@ -1,7 +1,7 @@
 import { Result } from '@application/logic/Result';
-import { CUSTOM_ERRORS } from '@domain/CustomErrors';
+import { CUSTOM_ERRORS } from '@domain/errors/CustomErrors';
 
-export class Guard {
+export class GuardProps {
   public static againstNullOrUndefined(
     argument: any,
     argumentName: string,
@@ -12,7 +12,7 @@ export class Guard {
         msg: `Field *${argumentName}* is null or undefined`,
       });
     } else {
-      return Result.ok();
+      return Result.ok(argument);
     }
   }
 }

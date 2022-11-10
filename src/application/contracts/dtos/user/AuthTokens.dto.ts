@@ -1,7 +1,6 @@
 export class AuthTokensDto {
   accessToken: string;
-
-  refreshToken?: string;
+  refreshToken: string;
 
   private constructor(props: any) {
     const { accessToken, refreshToken } = props;
@@ -10,12 +9,6 @@ export class AuthTokensDto {
   }
 
   public static create(props: any): AuthTokensDto {
-    const { accessToken, refreshToken } = props;
-
-    const authTokensDto = new AuthTokensDto({
-      accessToken,
-      refreshToken,
-    });
-    return authTokensDto;
+    return new AuthTokensDto(props);
   }
 }

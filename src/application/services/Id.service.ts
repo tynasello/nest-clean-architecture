@@ -5,9 +5,9 @@ export class IdService {
     return uuid();
   }
 
-  public static isValidId(id: string): boolean {
-    const regexExp =
+  public static isValidId(field: string): boolean {
+    const isValidIdRegexExp =
       /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
-    return !!id && regexExp.test(id);
+    return !!field && isValidIdRegexExp.test(field);
   }
 }

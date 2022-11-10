@@ -1,30 +1,29 @@
 import { SignupUserDto } from '@application/contracts/dtos/user/SignupUser.dto';
 import { UpdateUserDto } from '@application/contracts/dtos/user/UpdateUser.dto';
-import { Guard } from '@application/logic/Guard';
+import { BaseMapper } from '@application/logic/BaseMapper';
 import { Result } from '@application/logic/Result';
-import { CUSTOM_ERRORS } from '@domain/CustomErrors';
 import { User } from '@domain/entities/User';
-import { IUserRepository } from '@domain/interfaces/IUserRepository';
-import { UserUsername } from '@domain/value-objects/user/UserUsername';
-import { UserMap } from '@interface-adapters/dal/mappers/UserMap';
+import { CUSTOM_ERRORS } from '@domain/errors/CustomErrors';
+import { IUserRepository } from '@domain/interfaces/repositories/IUserRepository';
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class UserService {
   constructor(
-    @Inject('IUserRepository') private userRepository: IUserRepository,
+    @Inject('IUserRepository') private readonly userRepository: IUserRepository,
+    @Inject('BaseMapper<User>') private readonly userMap: BaseMapper<User>,
   ) {}
 
   // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  async getUsers(): Promise<Result<any[]>> {
+  async getUsers(): Promise<Result<User[]>> {
     const collectedUsers = await this.userRepository.getAll();
-    return Result.ok<User[]>(collectedUsers);
+    return Result.ok(collectedUsers);
   }
 
   // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  async getUserByUsername(username: string): Promise<Result<any>> {
+  async getUserByUsername(username: string): Promise<Result<User>> {
     const userExists = await this.userRepository.exists({
       username,
     });
@@ -44,19 +43,9 @@ export class UserService {
 
   // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  async createUser(createUserDto: SignupUserDto): Promise<Result<any>> {
-    const userOrError = UserMap.dtoToDomain(createUserDto);
-
-    if (userOrError.isFailure) {
-      return Result.fail(userOrError.getError());
-    }
-
-    // user entity created...
-    let user = userOrError.getValue();
-
-    // check unique username constraint met
+  async createUser(createUserDto: SignupUserDto): Promise<Result<User>> {
     const userExists = await this.userRepository.exists({
-      username: user.props.username.value,
+      username: createUserDto.username,
     });
     if (userExists)
       return Result.fail({
@@ -64,49 +53,34 @@ export class UserService {
         msg: 'User already exists',
       });
 
-    // save user
-    user = await this.userRepository.create(user);
+    const userOrError = this.userMap.dtoToDomain(createUserDto);
+    if (userOrError.isFailure) {
+      return Result.fail(userOrError.getError());
+    }
 
-    return Result.ok<User>(user);
+    const user = userOrError.getValue();
+
+    const createdUser = await this.userRepository.create(user);
+
+    return Result.ok<User>(createdUser);
   }
 
   // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  public async updateUserRefreshToken(
-    updateUserDto: UpdateUserDto,
-  ): Promise<Result<any>> {
-    const { refreshToken } = updateUserDto;
-    const usernameOrError = UserUsername.create({
-      value: updateUserDto.username,
-    });
-    const refreshTokenOrError = Guard.againstNullOrUndefined(
-      refreshToken,
-      'refreshToken',
-    );
-
-    const combinedPropsResult = Result.combine([
-      usernameOrError,
-      refreshTokenOrError,
-    ]);
-
-    if (combinedPropsResult.isFailure) {
-      return Result.fail(combinedPropsResult.getError());
-    }
-
-    const username = usernameOrError.getValue();
+  public async updateUser(updateUserDto: UpdateUserDto): Promise<Result<User>> {
+    const { username } = updateUserDto;
 
     const userExists = await this.userRepository.exists({
-      username: username.value,
+      username: username,
     });
+
     if (!userExists)
       return Result.fail({
         code: CUSTOM_ERRORS.USER_INPUT_ERROR,
         msg: 'User does not exist',
       });
 
-    const updatedUser = await this.userRepository.updateUser(username.value, {
-      refreshToken: refreshToken,
-    });
+    const updatedUser = await this.userRepository.update(updateUserDto);
 
     return Result.ok<User>(updatedUser);
   }

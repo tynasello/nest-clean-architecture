@@ -1,14 +1,16 @@
-import { DomainEvent } from '@domain/events/DomainEventManager';
-import { IDomainEventSubscriber } from '@domain/events/IDomainEventSubscriber';
-import { UserGateway } from '@interface-adapters/gateways/User.gateway';
-import { Injectable } from '@nestjs/common';
+import { DomainEventEnum } from '@domain/events/DomainEventManager';
+import { IUserGateway } from '@domain/interfaces/gateways/IUserGateway';
+import { ILogUserSubscriber } from '@domain/interfaces/subscribers/ILogUserSubscriber';
+import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
-export class LogUserSubscriber implements IDomainEventSubscriber {
-  constructor(private readonly userGateway: UserGateway) {}
+export class LogUserSubscriber implements ILogUserSubscriber {
+  constructor(
+    @Inject('IUserGateway') private readonly userGateway: IUserGateway,
+  ) {}
 
-  public update(domainEvent: DomainEvent, payload: any) {
-    const user = payload.user || null;
+  public update(domainEvent: DomainEventEnum, payload: any) {
+    const user = payload?.user;
     this.userGateway.emitUserCreated(domainEvent, user);
   }
 }

@@ -1,31 +1,24 @@
-import { Guard } from '@application/logic/Guard';
+import { GuardProps } from '@application/logic/Guard';
 import { Result } from '@application/logic/Result';
-import { CUSTOM_ERRORS } from '@domain/CustomErrors';
+import { CUSTOM_ERRORS } from '@domain/errors/CustomErrors';
+import { ValueObject } from '@domain/primitives/ValueObject';
 
-interface UserPasswordProps {
-  value: string;
-}
+type UserPasswordValue = string;
 
-export class UserPassword {
-  public readonly value: string;
+export class UserPassword extends ValueObject<UserPasswordValue> {
+  private static readonly minPasswordLength = 5;
 
-  private constructor(props: UserPasswordProps) {
-    this.value = props.value;
-  }
-
-  public static isValidPassword(password: string): boolean {
-    if (password.length > 5) {
-      return true;
+  public static isValidPassword(password: UserPasswordValue): boolean {
+    if (password.length < UserPassword.minPasswordLength) {
+      return false;
     }
-    return false;
+    return true;
   }
 
-  public static create(props: UserPasswordProps): Result<UserPassword> {
-    const { value } = props;
+  public static create(value: UserPasswordValue): Result<UserPassword> {
+    const guardResult = GuardProps.againstNullOrUndefined(value, 'password');
 
-    const guardResult = Guard.againstNullOrUndefined(value, 'password');
-
-    if (guardResult.isFailure) return guardResult;
+    if (guardResult.isFailure) return Result.fail(guardResult.getError());
 
     if (!this.isValidPassword(value)) {
       return Result.fail({
@@ -33,10 +26,7 @@ export class UserPassword {
         msg: 'Field *password* is invalid',
       });
     }
-    const userPassword = new UserPassword({
-      value,
-    });
 
-    return Result.ok<UserPassword>(userPassword);
+    return Result.ok<UserPassword>(new UserPassword(value));
   }
 }
