@@ -1,4 +1,4 @@
-import { MessageHistoryDto } from '@application/contracts/dtos/message/MessageHistory.dto';
+import { MessageHistory } from '@application/contracts/dtos/message/MessageHistory';
 import { Message } from '@domain/entities/Message';
 import { IRepository } from '@domain/interfaces/IRepository';
 
@@ -7,5 +7,5 @@ export interface IMessageRepository extends IRepository<Message> {
   getMessageHistoryWithContact(
     username: string,
     contactUsername: string,
-  ): Promise<MessageHistoryDto>;
+  ): Promise<MessageHistory>;
 }

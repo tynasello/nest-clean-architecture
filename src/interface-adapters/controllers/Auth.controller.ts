@@ -1,6 +1,8 @@
-import { LoginUserDto } from '@application/contracts/dtos/user/LoginUser.dto';
-import { SignupUserDto } from '@application/contracts/dtos/user/SignupUser.dto';
+import { AuthTokensResponseDto } from '@application/contracts/dtos/user/AuthTokens.response.dto';
+import { LoginUserRequestDto } from '@application/contracts/dtos/user/LoginUser.request.dto';
+import { SignupUserRequestDto } from '@application/contracts/dtos/user/SignupUser.request.dto';
 import { BaseController } from '@application/logic/BaseController';
+import { Result } from '@application/logic/Result';
 import { AuthService } from '@application/use-cases/Auth.service';
 import { GetUserFromReq } from '@interface-adapters/controllers/decorators/GetUserFromReq.decorator';
 import { AccessTokenGuard } from '@interface-adapters/controllers/guards/AccessToken.guard';
@@ -24,8 +26,13 @@ export class AuthController extends BaseController {
 
   @Post('login')
   @UseInterceptors(SetCookiesInterceptor)
-  public async login(@Body() loginUserDto: LoginUserDto): Promise<any> {
-    const authTokensDtoOrError = await this.authService.login(loginUserDto);
+  public async login(@Body() loginUserDto: LoginUserRequestDto): Promise<any> {
+    const authTokenOrError = await this.authService.login(loginUserDto);
+
+    const authTokensDtoOrError = authTokenOrError.isSuccess
+      ? Result.ok(AuthTokensResponseDto.create(authTokenOrError.getValue()))
+      : Result.fail(authTokenOrError.getError());
+
     return this.handleResult(authTokensDtoOrError);
   }
 
@@ -33,8 +40,15 @@ export class AuthController extends BaseController {
 
   @Post('signup')
   @UseInterceptors(SetCookiesInterceptor)
-  public async signup(@Body() signupUserDto: SignupUserDto): Promise<any> {
-    const authTokensDtoOrError = await this.authService.signup(signupUserDto);
+  public async signup(
+    @Body() signupUserDto: SignupUserRequestDto,
+  ): Promise<any> {
+    const authTokenOrError = await this.authService.signup(signupUserDto);
+
+    const authTokensDtoOrError = authTokenOrError.isSuccess
+      ? Result.ok(AuthTokensResponseDto.create(authTokenOrError.getValue()))
+      : Result.fail(authTokenOrError.getError());
+
     return this.handleResult(authTokensDtoOrError);
   }
 
@@ -63,6 +77,13 @@ export class AuthController extends BaseController {
       username,
       refreshToken,
     });
-    return this.handleResult(refreshedAccessTokenOrError);
+
+    const refreshedAccessTokenDtoOrError = refreshedAccessTokenOrError.isSuccess
+      ? Result.ok(
+          AuthTokensResponseDto.create(refreshedAccessTokenOrError.getValue()),
+        )
+      : Result.fail(refreshedAccessTokenOrError.getError());
+
+    return this.handleResult(refreshedAccessTokenDtoOrError);
   }
 }

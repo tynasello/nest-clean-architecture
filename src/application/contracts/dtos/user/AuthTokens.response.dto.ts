@@ -1,4 +1,4 @@
-export class AuthTokensDto {
+export class AuthTokensResponseDto {
   accessToken: string;
   refreshToken: string;
 
@@ -8,7 +8,7 @@ export class AuthTokensDto {
     this.refreshToken = refreshToken;
   }
 
-  public static create(props: any): AuthTokensDto {
-    return new AuthTokensDto(props);
+  public static create(props: any): AuthTokensResponseDto {
+    return new AuthTokensResponseDto(props);
   }
 }

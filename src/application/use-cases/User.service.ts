@@ -1,5 +1,5 @@
-import { SignupUserDto } from '@application/contracts/dtos/user/SignupUser.dto';
-import { UpdateUserDto } from '@application/contracts/dtos/user/UpdateUser.dto';
+import { SignupUserRequestDto } from '@application/contracts/dtos/user/SignupUser.request.dto';
+import { UpdateUserRequestDto } from '@application/contracts/dtos/user/UpdateUser.request.dto';
 import { BaseMapper } from '@application/logic/BaseMapper';
 import { Result } from '@application/logic/Result';
 import { User } from '@domain/entities/User';
@@ -63,7 +63,7 @@ export class UserService {
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-  async createUser(createUserDto: SignupUserDto): Promise<Result<User>> {
+  async createUser(createUserDto: SignupUserRequestDto): Promise<Result<User>> {
     const userExists = await this.userRepository.userExists({
       username: createUserDto.username,
     });
@@ -87,7 +87,9 @@ export class UserService {
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-  public async updateUser(updateUserDto: UpdateUserDto): Promise<Result<User>> {
+  public async updateUser(
+    updateUserDto: UpdateUserRequestDto,
+  ): Promise<Result<User>> {
     const { username } = updateUserDto;
 
     const userExists = await this.userRepository.userExists({

@@ -1,4 +1,4 @@
-import { UpdateUserDto } from '@application/contracts/dtos/user/UpdateUser.dto';
+import { UpdateUserRequestDto } from '@application/contracts/dtos/user/UpdateUser.request.dto';
 import { BaseMapper } from '@application/logic/BaseMapper';
 import { Message } from '@domain/entities/Message';
 import { User } from '@domain/entities/User';
@@ -82,7 +82,7 @@ export class UserRepository implements IUserRepository {
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-  public async updateUser(updateUserDto: UpdateUserDto): Promise<User> {
+  public async updateUser(updateUserDto: UpdateUserRequestDto): Promise<User> {
     const { username, ...newUserProps } = updateUserDto;
     const updatedUser = await this.prismaService.user.update({
       where: { username },

@@ -1,5 +1,5 @@
-import { CreateMessageDto } from '@application/contracts/dtos/message/CreateMessage.dto';
-import { MessageHistoryDto } from '@application/contracts/dtos/message/MessageHistory.dto';
+import { CreateMessageRequestDto } from '@application/contracts/dtos/message/CreateMessage.request.dto';
+import { MessageHistory } from '@application/contracts/dtos/message/MessageHistory';
 import { BaseMapper } from '@application/logic/BaseMapper';
 import { Result } from '@application/logic/Result';
 import { Message } from '@domain/entities/Message';
@@ -21,7 +21,7 @@ export class MessageService {
 
   async createMessage(
     senderUsername: string,
-    createMessageDto: CreateMessageDto,
+    createMessageDto: CreateMessageRequestDto,
   ): Promise<Result<Message>> {
     const messageOrError = await this.messageMap.dtoToDomain({
       senderUsername,
@@ -44,7 +44,7 @@ export class MessageService {
   public async getMessageHistoryWithContact(
     username: string,
     contactUsername: string,
-  ): Promise<Result<MessageHistoryDto>> {
+  ): Promise<Result<MessageHistory>> {
     const contactUserOrError = await this.userService.getUserByUsername(
       contactUsername,
     );
@@ -61,6 +61,6 @@ export class MessageService {
         contactId,
       );
 
-    return Result.ok<MessageHistoryDto>(messageHistoryWithContact);
+    return Result.ok<MessageHistory>(messageHistoryWithContact);
   }
 }

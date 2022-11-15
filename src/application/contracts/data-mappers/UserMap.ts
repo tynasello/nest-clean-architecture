@@ -1,5 +1,5 @@
-import { SignupUserDto } from '@application/contracts/dtos/user/SignupUser.dto';
-import { UserDto } from '@application/contracts/dtos/user/User.dto';
+import { SignupUserRequestDto } from '@application/contracts/dtos/user/SignupUser.request.dto';
+import { UserResponseDto } from '@application/contracts/dtos/user/User.response.dto';
 import { BaseMapper } from '@application/logic/BaseMapper';
 import { Result } from '@application/logic/Result';
 import { User } from '@domain/entities/User';
@@ -27,7 +27,7 @@ export class UserMap implements BaseMapper<User> {
 
   // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  public dtoToDomain(createUserDto: SignupUserDto): Result<User> {
+  public dtoToDomain(createUserDto: SignupUserRequestDto): Result<User> {
     const idOrError = Id.create();
     const usernameOrError = UserUsername.create(createUserDto.username);
     const passwordOrError = UserPassword.create(createUserDto.password);
@@ -83,14 +83,12 @@ export class UserMap implements BaseMapper<User> {
 
   // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  public domainToDTO(user: User): UserDto {
-    const { id, username, password, refreshToken, profileColor } = user.props;
+  public domainToDTO(user: User): UserResponseDto {
+    const { id, username, profileColor } = user.props;
 
-    const userDto = UserDto.create({
+    const userDto = UserResponseDto.create({
       id: id.value,
       username: username.value,
-      password: password.value,
-      refreshToken: refreshToken,
       profileColor: profileColor.value,
     });
     return userDto;

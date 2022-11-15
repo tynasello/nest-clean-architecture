@@ -1,5 +1,5 @@
-import { CreateMessageDto } from '@application/contracts/dtos/message/CreateMessage.dto';
-import { MessageDto } from '@application/contracts/dtos/message/Message.dto';
+import { CreateMessageRequestDto } from '@application/contracts/dtos/message/CreateMessage.request.dto';
+import { MessageResponseDto } from '@application/contracts/dtos/message/Message.response.dto';
 import { MessageHistoryResponseDto } from '@application/contracts/dtos/message/MessageHistory.response.dto';
 import { MessageHistoryWithContactRequestDto } from '@application/contracts/dtos/message/MessageHistoryWithContact.request.dto';
 import { BaseController } from '@application/logic/BaseController';
@@ -36,7 +36,7 @@ export class MessageController extends BaseController {
   @UseGuards(AccessTokenGuard)
   public async createMessage(
     @GetUserFromReq('username') senderUsername: string,
-    @Body() createMessageDto: CreateMessageDto,
+    @Body() createMessageDto: CreateMessageRequestDto,
   ): Promise<any> {
     let messageOrError = await this.messageService.createMessage(
       senderUsername,
@@ -73,11 +73,11 @@ export class MessageController extends BaseController {
 
     const sentMessagesDto = sentMessages.map((message) =>
       this.messageMap.domainToDTO(message),
-    ) as MessageDto[];
+    ) as MessageResponseDto[];
 
     const receivedMessagesDto = receivedMessages.map((message) =>
       this.messageMap.domainToDTO(message),
-    ) as MessageDto[];
+    ) as MessageResponseDto[];
 
     const messageHistoryDto = MessageHistoryResponseDto.create({
       sentMessages: sentMessagesDto,

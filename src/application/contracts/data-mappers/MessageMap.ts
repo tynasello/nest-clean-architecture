@@ -5,8 +5,8 @@ import { Message } from '@domain/entities/Message';
 import { Id } from '@domain/value-objects/Id';
 import { MessageContent } from '@domain/value-objects/message/MessageContent';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { CreateMessageDto } from '../dtos/message/CreateMessage.dto';
-import { MessageDto } from '../dtos/message/Message.dto';
+import { CreateMessageRequestDto } from '../dtos/message/CreateMessage.request.dto';
+import { MessageResponseDto } from '../dtos/message/Message.response.dto';
 
 @Injectable()
 export class MessageMap implements BaseMapper<Message> {
@@ -33,7 +33,7 @@ export class MessageMap implements BaseMapper<Message> {
   }
 
   public async dtoToDomain(
-    dto: CreateMessageDto & { senderUsername: string },
+    dto: CreateMessageRequestDto & { senderUsername: string },
   ): Promise<Result<Message>> {
     const idOrError = Id.create();
     const contentOrError = MessageContent.create(dto.content);
@@ -88,10 +88,10 @@ export class MessageMap implements BaseMapper<Message> {
     };
   }
 
-  public domainToDTO(message: Message): MessageDto {
+  public domainToDTO(message: Message): MessageResponseDto {
     const { id, content, createdAt, sender, receiver } = message.props;
 
-    const userDto = MessageDto.create({
+    const userDto = MessageResponseDto.create({
       id: id.value,
       content: content.value,
       createdAt: createdAt.toLocaleDateString(),

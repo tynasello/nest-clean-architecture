@@ -1,4 +1,4 @@
-export class MessageDto {
+export class MessageResponseDto {
   id: string;
   content: string;
   createdAt: string;
@@ -14,7 +14,7 @@ export class MessageDto {
     this.receiverUsername = receiverUsername;
   }
 
-  public static create(props: MessageDto) {
-    return new MessageDto(props);
+  public static create(props: MessageResponseDto) {
+    return new MessageResponseDto(props);
   }
 }

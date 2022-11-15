@@ -1,7 +1,7 @@
-import { AuthTokensDto } from '@application/contracts/dtos/user/AuthTokens.dto';
-import { LoginUserDto } from '@application/contracts/dtos/user/LoginUser.dto';
-import { RefreshAccessTokenDto } from '@application/contracts/dtos/user/RefreshAccessToken.dto';
-import { SignupUserDto } from '@application/contracts/dtos/user/SignupUser.dto';
+import { AuthTokens } from '@application/contracts/dtos/user/AuthTokens';
+import { LoginUserRequestDto } from '@application/contracts/dtos/user/LoginUser.request.dto';
+import { RefreshAccessTokenRequestDto } from '@application/contracts/dtos/user/RefreshAccessToken.request.dto';
+import { SignupUserRequestDto } from '@application/contracts/dtos/user/SignupUser.request.dto';
 import { GuardProps } from '@application/logic/Guard';
 import { Result } from '@application/logic/Result';
 import { AuthTokenService } from '@application/services/AuthToken.service';
@@ -22,8 +22,8 @@ export class AuthService {
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
   public async login(
-    loginUserDto: LoginUserDto,
-  ): Promise<Result<AuthTokensDto>> {
+    loginUserDto: LoginUserRequestDto,
+  ): Promise<Result<AuthTokens>> {
     const { username, password } = loginUserDto;
     const usernameOrError = GuardProps.againstNullOrUndefined(
       username,
@@ -73,8 +73,8 @@ export class AuthService {
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
   public async signup(
-    signupUserDto: SignupUserDto,
-  ): Promise<Result<AuthTokensDto>> {
+    signupUserDto: SignupUserRequestDto,
+  ): Promise<Result<AuthTokens>> {
     const { password } = signupUserDto;
     const passwordOrError = UserPassword.create(password);
 
@@ -117,8 +117,8 @@ export class AuthService {
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
   public async refreshTokens(
-    refreshAccessTokenDto: RefreshAccessTokenDto,
-  ): Promise<Result<Pick<AuthTokensDto, 'accessToken'>>> {
+    refreshAccessTokenDto: RefreshAccessTokenRequestDto,
+  ): Promise<Result<Pick<AuthTokens, 'accessToken'>>> {
     const { username, refreshToken } = refreshAccessTokenDto;
     const userOrError = await this.userService.getUserByUsername(username);
 
@@ -146,7 +146,7 @@ export class AuthService {
   //HELPERS
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-  private async createTokens(user: User): Promise<AuthTokensDto> {
+  private async createTokens(user: User): Promise<AuthTokens> {
     const accessToken = await this.createAccessToken(user);
     const refreshToken = await this.createRefreshToken(user);
 

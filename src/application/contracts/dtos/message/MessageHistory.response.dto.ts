@@ -1,8 +1,8 @@
-import { MessageDto } from './Message.dto';
+import { MessageResponseDto } from './Message.response.dto';
 
 export class MessageHistoryResponseDto {
-  sentMessages: MessageDto[];
-  receivedMessages: MessageDto[];
+  sentMessages: MessageResponseDto[];
+  receivedMessages: MessageResponseDto[];
 
   private constructor(props: any) {
     const { sentMessages, receivedMessages } = props;
