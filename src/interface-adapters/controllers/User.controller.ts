@@ -23,6 +23,8 @@ export class UserController extends BaseController {
     super();
   }
 
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
   @Get()
   @UseInterceptors(CachingInterceptor)
   @UseGuards(AccessTokenGuard)

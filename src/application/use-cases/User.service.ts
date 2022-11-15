@@ -14,17 +14,37 @@ export class UserService {
     @Inject('BaseMapper<User>') private readonly userMap: BaseMapper<User>,
   ) {}
 
-  // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
   async getUsers(): Promise<Result<User[]>> {
-    const collectedUsers = await this.userRepository.getAll();
+    const collectedUsers = await this.userRepository.getAllUsers();
     return Result.ok(collectedUsers);
   }
 
-  // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+  async getUserById(id: string): Promise<Result<User>> {
+    const userExists = await this.userRepository.userExists({
+      id,
+    });
+
+    if (!userExists)
+      return Result.fail({
+        code: CUSTOM_ERRORS.USER_INPUT_ERROR,
+        msg: `User with id ${id} does not exist`,
+      });
+
+    const collectedUser = await this.userRepository.getUserByIdentifier({
+      id,
+    });
+
+    return Result.ok<User>(collectedUser);
+  }
+
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
   async getUserByUsername(username: string): Promise<Result<User>> {
-    const userExists = await this.userRepository.exists({
+    const userExists = await this.userRepository.userExists({
       username,
     });
 
@@ -34,17 +54,17 @@ export class UserService {
         msg: `User with username ${username} does not exist`,
       });
 
-    const collectedUser = await this.userRepository.getOneByIdentifier({
+    const collectedUser = await this.userRepository.getUserByIdentifier({
       username,
     });
 
     return Result.ok<User>(collectedUser);
   }
 
-  // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
   async createUser(createUserDto: SignupUserDto): Promise<Result<User>> {
-    const userExists = await this.userRepository.exists({
+    const userExists = await this.userRepository.userExists({
       username: createUserDto.username,
     });
     if (userExists)
@@ -53,7 +73,7 @@ export class UserService {
         msg: 'User already exists',
       });
 
-    const userOrError = this.userMap.dtoToDomain(createUserDto);
+    const userOrError = await this.userMap.dtoToDomain(createUserDto);
     if (userOrError.isFailure) {
       return Result.fail(userOrError.getError());
     }
@@ -65,12 +85,12 @@ export class UserService {
     return Result.ok<User>(createdUser);
   }
 
-  // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
   public async updateUser(updateUserDto: UpdateUserDto): Promise<Result<User>> {
     const { username } = updateUserDto;
 
-    const userExists = await this.userRepository.exists({
+    const userExists = await this.userRepository.userExists({
       username: username,
     });
 
@@ -80,10 +100,8 @@ export class UserService {
         msg: 'User does not exist',
       });
 
-    const updatedUser = await this.userRepository.update(updateUserDto);
+    const updatedUser = await this.userRepository.updateUser(updateUserDto);
 
     return Result.ok<User>(updatedUser);
   }
-
-  // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 }

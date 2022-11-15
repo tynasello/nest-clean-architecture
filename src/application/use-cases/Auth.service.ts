@@ -19,6 +19,8 @@ export class AuthService {
     private readonly authTokenService: AuthTokenService,
   ) {}
 
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
   public async login(
     loginUserDto: LoginUserDto,
   ): Promise<Result<AuthTokensDto>> {
@@ -68,6 +70,8 @@ export class AuthService {
     return Result.ok(userAuthTokens);
   }
 
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
   public async signup(
     signupUserDto: SignupUserDto,
   ): Promise<Result<AuthTokensDto>> {
@@ -96,6 +100,8 @@ export class AuthService {
     return Result.ok(userAuthTokens);
   }
 
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
   public async logout(username: string): Promise<Result<any>> {
     const updatedUserOrError = await this.userService.updateUser({
       username,
@@ -107,6 +113,8 @@ export class AuthService {
 
     return Result.ok();
   }
+
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
   public async refreshTokens(
     refreshAccessTokenDto: RefreshAccessTokenDto,
@@ -134,7 +142,9 @@ export class AuthService {
     return Result.ok({ accessToken: newAccessToken });
   }
 
-  // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+  //HELPERS
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
   private async createTokens(user: User): Promise<AuthTokensDto> {
     const accessToken = await this.createAccessToken(user);

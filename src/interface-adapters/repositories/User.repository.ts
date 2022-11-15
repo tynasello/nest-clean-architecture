@@ -1,57 +1,74 @@
 import { UpdateUserDto } from '@application/contracts/dtos/user/UpdateUser.dto';
 import { BaseMapper } from '@application/logic/BaseMapper';
-import { DatabaseService } from '@application/services/Database.sevice';
+import { Message } from '@domain/entities/Message';
 import { User } from '@domain/entities/User';
 import {
   DomainEventEnum,
   DomainEventManager,
 } from '@domain/events/DomainEventManager';
 import { IUserRepository } from '@domain/interfaces/repositories/IUserRepository';
+import { PrismaService } from '@infrastructure/db/prisma/Prisma.service';
 import { Inject, Injectable } from '@nestjs/common';
 
 type IdentifierProps = {
-  id?: number;
+  id?: string;
   username?: string;
 };
 
 @Injectable()
 export class UserRepository implements IUserRepository {
   constructor(
-    private readonly databaseService: DatabaseService,
+    private readonly prismaService: PrismaService,
     private readonly domainEventManager: DomainEventManager,
     @Inject('BaseMapper<User>')
     private readonly userMap: BaseMapper<User>,
+    @Inject('BaseMapper<Message>')
+    private readonly messageMap: BaseMapper<Message>,
   ) {}
 
-  public async exists({ username }: IdentifierProps): Promise<boolean> {
-    const user = await this.databaseService.findOne('user', {
-      username: username ? username : '',
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+  public async userExists({ id, username }: IdentifierProps): Promise<boolean> {
+    const user = await this.prismaService.user.findUnique({
+      where: { id, username },
     });
     return !!user === true;
   }
 
-  public async getAll(): Promise<User[]> {
-    const collectedUsers = await this.databaseService.findMany('user');
-    const users = collectedUsers.map((user: any) =>
-      this.userMap.persistanceToDomain(user),
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+  public async getAllUsers(): Promise<User[]> {
+    const collectedUsers = await this.prismaService.user.findMany({});
+
+    const users = await Promise.all(
+      collectedUsers.map((user: any) => this.userMap.persistanceToDomain(user)),
     );
+
     return users;
   }
 
-  public async getOneByIdentifier({
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+  public async getUserByIdentifier({
+    id,
     username,
   }: IdentifierProps): Promise<User | null> {
-    const collectedUser = await this.databaseService.findOne('user', {
-      username: username ? username : '',
+    const identifierProps = id ? { id } : username ? { username } : { id: '' };
+
+    const collectedUser = await this.prismaService.user.findUnique({
+      where: identifierProps,
     });
+
     const user = this.userMap.persistanceToDomain(collectedUser);
     return user;
   }
 
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
   public async create(user: User): Promise<User> {
     const rawUser = this.userMap.domainToPersistence(user);
-    const createdUser = await this.databaseService.create('user', rawUser);
-    user = this.userMap.persistanceToDomain(createdUser);
+    const createdUser = await this.prismaService.user.create({ data: rawUser });
+    user = await this.userMap.persistanceToDomain(createdUser);
 
     this.domainEventManager.fireDomainEvent(
       DomainEventEnum.USER_CREATED_EVENT,
@@ -63,13 +80,14 @@ export class UserRepository implements IUserRepository {
     return user;
   }
 
-  public async update(updateUserDto: UpdateUserDto): Promise<User> {
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+  public async updateUser(updateUserDto: UpdateUserDto): Promise<User> {
     const { username, ...newUserProps } = updateUserDto;
-    const updatedUser = await this.databaseService.updateMany(
-      'user',
-      { username },
-      newUserProps,
-    );
+    const updatedUser = await this.prismaService.user.update({
+      where: { username },
+      data: newUserProps,
+    });
 
     return this.userMap.persistanceToDomain(updatedUser);
   }

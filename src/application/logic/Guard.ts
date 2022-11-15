@@ -15,4 +15,18 @@ export class GuardProps {
       return Result.ok(argument);
     }
   }
+  public static againstIncorrectType(
+    argument: any,
+    argumentName: string,
+    requiredType: any,
+  ): Result<any> {
+    if (typeof argument !== requiredType) {
+      return Result.fail({
+        code: CUSTOM_ERRORS.USER_INPUT_ERROR,
+        msg: `Field *${argumentName}* is not of type ${requiredType}`,
+      });
+    } else {
+      return Result.ok(argument);
+    }
+  }
 }

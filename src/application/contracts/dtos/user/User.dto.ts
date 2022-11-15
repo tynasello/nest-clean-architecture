@@ -14,7 +14,7 @@ export class UserDto {
     this.profileColor = profileColor;
   }
 
-  public static create(props: any) {
+  public static create(props: UserDto) {
     return new UserDto(props);
   }
 }

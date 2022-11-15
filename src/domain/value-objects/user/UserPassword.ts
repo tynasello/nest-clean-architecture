@@ -1,4 +1,3 @@
-import { GuardProps } from '@application/logic/Guard';
 import { Result } from '@application/logic/Result';
 import { CUSTOM_ERRORS } from '@domain/errors/CustomErrors';
 import { ValueObject } from '@domain/primitives/ValueObject';
@@ -16,14 +15,10 @@ export class UserPassword extends ValueObject<UserPasswordValue> {
   }
 
   public static create(value: UserPasswordValue): Result<UserPassword> {
-    const guardResult = GuardProps.againstNullOrUndefined(value, 'password');
-
-    if (guardResult.isFailure) return Result.fail(guardResult.getError());
-
     if (!this.isValidPassword(value)) {
       return Result.fail({
         code: CUSTOM_ERRORS.USER_INPUT_ERROR,
-        msg: 'Field *password* is invalid',
+        msg: `password must be greater than or equal to ${UserPassword.minPasswordLength} characters long`,
       });
     }
 

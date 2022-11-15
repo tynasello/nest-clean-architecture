@@ -20,6 +20,8 @@ export class AuthController extends BaseController {
     super();
   }
 
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
   @Post('login')
   @UseInterceptors(SetCookiesInterceptor)
   public async login(@Body() loginUserDto: LoginUserDto): Promise<any> {
@@ -27,12 +29,16 @@ export class AuthController extends BaseController {
     return this.handleResult(authTokensDtoOrError);
   }
 
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
   @Post('signup')
   @UseInterceptors(SetCookiesInterceptor)
   public async signup(@Body() signupUserDto: SignupUserDto): Promise<any> {
     const authTokensDtoOrError = await this.authService.signup(signupUserDto);
     return this.handleResult(authTokensDtoOrError);
   }
+
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
   @Post('logout')
   @UseInterceptors(SetCookiesInterceptor)
@@ -43,6 +49,8 @@ export class AuthController extends BaseController {
     const loggedOutResult = await this.authService.logout(username);
     return this.handleResult(loggedOutResult);
   }
+
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
   @Post('refresh-tokens')
   @UseInterceptors(SetCookiesInterceptor)

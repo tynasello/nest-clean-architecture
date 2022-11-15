@@ -27,10 +27,11 @@ export class CachingInterceptor implements NestInterceptor {
         return next.handle();
       }
 
-      const url = request.url;
+      const url = JSON.stringify(request.url);
+      const body = JSON.stringify(request.body);
       const cookies = HashService.hash(JSON.stringify(request.cookies));
 
-      const cacheKey = JSON.stringify(url + '/' + cookies);
+      const cacheKey = url + '/' + body + '/' + cookies;
 
       const cachedData = await this.cacheService.get(cacheKey);
       if (cachedData) {
