@@ -7,7 +7,9 @@ import { DomainEventManager } from '@domain/events/DomainEventManager';
 import { PrismaService } from '@infrastructure/db/prisma/Prisma.service';
 import { AccessTokenStrategy } from '@interface-adapters/auth-strategies/accessToken.strategy';
 import { RefreshTokenStrategy } from '@interface-adapters/auth-strategies/refreshToken.strategy';
+import { LogMessageSubscriber } from '@interface-adapters/domain-event-subscribers/LogMessage.subscriber';
 import { LogUserSubscriber } from '@interface-adapters/domain-event-subscribers/LogUser.subscriber';
+import { MessageGateway } from '@interface-adapters/gateways/Message.gateway';
 import { UserGateway } from '@interface-adapters/gateways/User.gateway';
 import { MessageRepository } from '@interface-adapters/repositories/Message.repository';
 import { UserRepository } from '@interface-adapters/repositories/User.repository';
@@ -29,8 +31,10 @@ import { MessageService } from './Message.service';
     { provide: 'BaseMapper<Message>', useClass: MessageMap },
 
     { provide: 'ILogUserSubscriber', useClass: LogUserSubscriber },
+    { provide: 'ILogMessageSubscriber', useClass: LogMessageSubscriber },
 
     { provide: 'IUserGateway', useClass: UserGateway },
+    { provide: 'IMessageGateway', useClass: MessageGateway },
 
     DomainEventManager,
     AccessTokenStrategy,

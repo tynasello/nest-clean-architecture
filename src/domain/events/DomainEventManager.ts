@@ -1,9 +1,11 @@
 import { IDomainEventSubscriber } from '@domain/interfaces/IDomainEventSubscriber';
+import { ILogMessageSubscriber } from '@domain/interfaces/subscribers/ILogMessageSubscriber';
 import { ILogUserSubscriber } from '@domain/interfaces/subscribers/ILogUserSubscriber';
 import { Inject, Injectable } from '@nestjs/common';
 
 export enum DomainEventEnum {
   USER_CREATED_EVENT = 'USER_CREATED_EVENT',
+  MESSAGE_CREATED_EVENT = 'MESSAGE_CREATED_EVENT',
 }
 
 type DomainEventsToSubscribersMap = {
@@ -16,6 +18,9 @@ export class DomainEventManager {
   constructor(
     @Inject('ILogUserSubscriber')
     private readonly logUserSubscriber: ILogUserSubscriber,
+
+    @Inject('ILogMessageSubscriber')
+    private readonly logMessageSubscriber: ILogMessageSubscriber,
   ) {}
 
   private readonly domainEventsToSubscribersMap: DomainEventsToSubscribersMap[] =
@@ -23,6 +28,10 @@ export class DomainEventManager {
       {
         domainEvent: DomainEventEnum.USER_CREATED_EVENT,
         subscribers: [this.logUserSubscriber],
+      },
+      {
+        domainEvent: DomainEventEnum.MESSAGE_CREATED_EVENT,
+        subscribers: [this.logMessageSubscriber],
       },
     ];
 

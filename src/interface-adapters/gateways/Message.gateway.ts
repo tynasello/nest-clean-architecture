@@ -1,9 +1,10 @@
 import { BaseMapper } from '@application/logic/BaseMapper';
 import { AuthTokenService } from '@application/services/AuthToken.service';
 import { UserService } from '@application/use-cases/User.service';
+import { Message } from '@domain/entities/Message';
 import { User } from '@domain/entities/User';
 import { DomainEventEnum } from '@domain/events/DomainEventManager';
-import { IUserGateway } from '@domain/interfaces/gateways/IUserGateway';
+import { IMessageGateway } from '@domain/interfaces/gateways/IMessageGateway';
 import {
   forwardRef,
   Inject,
@@ -15,7 +16,7 @@ import { Server, Socket } from 'socket.io';
 
 @Injectable()
 @WebSocketGateway({ namespace: 'user-events' })
-export class UserGateway implements IUserGateway {
+export class MessageGateway implements IMessageGateway {
   @WebSocketServer()
   server: Server;
 
@@ -25,7 +26,8 @@ export class UserGateway implements IUserGateway {
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly authTokenService: AuthTokenService,
-    @Inject('BaseMapper<User>') private readonly userMap: BaseMapper<User>,
+    @Inject('BaseMapper<Message>')
+    private readonly messageMap: BaseMapper<Message>,
   ) {}
 
   public async handleConnection(socket: Socket) {
@@ -55,9 +57,16 @@ export class UserGateway implements IUserGateway {
     socket.disconnect();
   }
 
-  public emitUserCreated(event: DomainEventEnum, user?: User) {
+  public emitMessageCreated(event: DomainEventEnum, message?: Message) {
     if (!this.connectedUser) return;
 
-    this.server.emit(event, user ? this.userMap.domainToDTO(user) : null);
+    if (
+      message?.props.receiver.props.id.value ===
+      this.connectedUser.props.id.value
+    )
+      this.server.emit(
+        event,
+        message ? this.messageMap.domainToDTO(message) : null,
+      );
   }
 }

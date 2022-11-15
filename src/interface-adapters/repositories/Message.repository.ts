@@ -1,7 +1,10 @@
-import { MessageHistoryDto } from '@application/contracts/dtos/message/MessageHistory.dto';
+import { MessageHistory } from '@application/contracts/dtos/message/MessageHistory';
 import { BaseMapper } from '@application/logic/BaseMapper';
 import { Message } from '@domain/entities/Message';
-import { DomainEventManager } from '@domain/events/DomainEventManager';
+import {
+  DomainEventEnum,
+  DomainEventManager,
+} from '@domain/events/DomainEventManager';
 import { IMessageRepository } from '@domain/interfaces/repositories/IMessageRepository';
 import { PrismaService } from '@infrastructure/db/prisma/Prisma.service';
 import { Inject, Injectable } from '@nestjs/common';
@@ -31,12 +34,12 @@ export class MessageRepository implements IMessageRepository {
 
     message = await this.messageMap.persistanceToDomain(createdMessage);
 
-    // this.domainEventManager.fireDomainEvent(
-    //   DomainEventEnum.USER_CREATED_EVENT,
-    //   {
-    //     message,
-    //   },
-    // );
+    this.domainEventManager.fireDomainEvent(
+      DomainEventEnum.MESSAGE_CREATED_EVENT,
+      {
+        message,
+      },
+    );
 
     return message;
   }
@@ -46,7 +49,7 @@ export class MessageRepository implements IMessageRepository {
   public async getMessageHistoryWithContact(
     username: string,
     contactId: string,
-  ): Promise<MessageHistoryDto> {
+  ): Promise<MessageHistory> {
     const collectedUser = await this.prismaService.user.findUnique({
       where: { username },
       include: {
