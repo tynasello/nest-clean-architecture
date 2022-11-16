@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { AuthTokenService } from '@application/services/AuthToken.service';
+import { AuthService } from '@application/use-cases/Auth.service';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { Strategy } from 'passport-jwt';
@@ -15,14 +16,36 @@ function extractAccessTokenFromCookie(req: Request) {
 
 @Injectable()
 export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly authService: AuthService,
+    private readonly authTokenService: AuthTokenService,
+  ) {
     super({
+      ignoreExpiration: true,
       jwtFromRequest: extractAccessTokenFromCookie,
-      secretOrKey: configService.get<string>('ACCESS_TOKEN_SECRET'),
+      secretOrKey: process.env.ACCESS_TOKEN_SECRET,
+      passReqToCallback: true,
     });
   }
 
-  async validate(payload: JwtPayload) {
-    return payload;
+  async validate(req: Request, payload: JwtPayload) {
+    const { refreshToken } = req.cookies;
+    let { accessToken } = req.cookies;
+    const accessTokenPayload = this.authTokenService.decodeJwt(accessToken);
+    const accessTokenExpired = Date.now() >= accessTokenPayload.exp * 1000;
+
+    if (accessTokenExpired) {
+      const refreshAccessTokenOrError = await this.authService.refreshTokens({
+        username: accessTokenPayload.username,
+        refreshToken,
+      });
+
+      if (refreshAccessTokenOrError.isFailure)
+        throw new UnauthorizedException();
+
+      accessToken = refreshAccessTokenOrError.getValue().accessToken;
+    }
+
+    return { accessToken, ...payload };
   }
 }

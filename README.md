@@ -2,7 +2,9 @@
 
 Features:
 - Clean architecture adhering to DDD principles.
-- User authentication using JWTs and HttpOnly cookies.
+- User authentication using JWTs.
+    - Tokens stored in HttpOnly cookies.
+    - Automatic attempts server-side to refresh expired access tokens.
 - Domain events over web sockets (Socket.io) using observer pattern.
 - Endpoint caching using Redis.
 - Designed with the intent to decouple services; easy to switch databases, third party libraries/services, etc.
