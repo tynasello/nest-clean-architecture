@@ -1,3 +1,4 @@
+import { DataMapperModule } from '@application/contracts/data-mappers/DataMapper.module';
 import { ServicesModule } from '@application/services/Services.module';
 import { UseCasesModule } from '@application/use-cases/UseCases.module';
 import { AuthController } from '@interface-adapters/controllers/Auth.controller';
@@ -10,6 +11,7 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot({ isGlobal: true }),
     ServicesModule,
     UseCasesModule,
+    DataMapperModule,
   ],
   controllers: [UserController, AuthController, MessageController],
 })

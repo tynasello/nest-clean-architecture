@@ -5,13 +5,15 @@ import { Result } from '@application/logic/Result';
 import { User } from '@domain/entities/User';
 import { CUSTOM_ERRORS } from '@domain/errors/CustomErrors';
 import { IUserRepository } from '@domain/interfaces/repositories/IUserRepository';
-import { Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class UserService {
   constructor(
     @Inject('IUserRepository') private readonly userRepository: IUserRepository,
-    @Inject('BaseMapper<User>') private readonly userMap: BaseMapper<User>,
+
+    @Inject(forwardRef(() => 'BaseMapper<User>'))
+    private readonly userMap: BaseMapper<User>,
   ) {}
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
