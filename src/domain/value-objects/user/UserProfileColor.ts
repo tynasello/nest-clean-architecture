@@ -4,8 +4,8 @@ import { ValueObject } from '@domain/primitives/ValueObject';
 type UserProfileColorValue = string;
 
 export class UserProfileColor extends ValueObject<UserProfileColorValue> {
-  private static readonly defaultUserProfileColor = 'gray';
-  private static readonly validProfileColors = [
+  public static readonly defaultUserProfileColor = 'gray';
+  public static readonly validProfileColors = [
     'gray',
     'blue',
     'red',
@@ -15,7 +15,7 @@ export class UserProfileColor extends ValueObject<UserProfileColorValue> {
     'purple',
   ];
 
-  public static isValidProfileColor(profileColor: string): boolean {
+  private static isValidProfileColor(profileColor: string): boolean {
     if (UserProfileColor.validProfileColors.includes(profileColor)) return true;
     return false;
   }
@@ -26,7 +26,7 @@ export class UserProfileColor extends ValueObject<UserProfileColorValue> {
     value = value ? value.toLowerCase() : null;
     return Result.ok<UserProfileColor>(
       new UserProfileColor(
-        this.isValidProfileColor(value)
+        value && this.isValidProfileColor(value)
           ? value
           : UserProfileColor.defaultUserProfileColor,
       ),

@@ -20,9 +20,9 @@ export class MessageRepository implements IMessageRepository {
 
   public async create(message: Message): Promise<Message> {
     const rawMessage = this.messageMap.domainToPersistence(message);
-    const { sender, receiver } = message.props;
-    const senderId = sender.props.id.value;
-    const receiverId = receiver.props.id.value;
+    const { sender, receiver } = message?.props;
+    const senderId = sender?.props?.id?.value;
+    const receiverId = receiver?.props?.id?.value;
 
     const createdMessage = await this.prismaService.message.create({
       data: {

@@ -2,7 +2,7 @@ import { AuthTokens } from '@application/contracts/dtos/user/AuthTokens';
 import { LoginUserRequestDto } from '@application/contracts/dtos/user/LoginUser.request.dto';
 import { RefreshAccessTokenRequestDto } from '@application/contracts/dtos/user/RefreshAccessToken.request.dto';
 import { SignupUserRequestDto } from '@application/contracts/dtos/user/SignupUser.request.dto';
-import { GuardProps } from '@application/logic/Guard';
+import { GuardProps } from '@application/logic/GuardProps';
 import { Result } from '@application/logic/Result';
 import { AuthTokenService } from '@application/services/AuthToken.service';
 import { HashService } from '@application/services/Hash.service';

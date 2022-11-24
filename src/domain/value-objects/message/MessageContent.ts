@@ -5,9 +5,9 @@ import { ValueObject } from '@domain/primitives/ValueObject';
 type MessageContentValue = string;
 
 export class MessageContent extends ValueObject<MessageContentValue> {
-  private static readonly maxMessageContentLength = 100;
+  public static readonly maxMessageContentLength = 100;
 
-  public static isValidMessageContent(
+  private static isValidMessageContent(
     messageContent: MessageContentValue,
   ): boolean {
     if (messageContent.length > MessageContent.maxMessageContentLength) {
@@ -17,10 +17,10 @@ export class MessageContent extends ValueObject<MessageContentValue> {
   }
 
   public static create(value: MessageContentValue): Result<MessageContent> {
-    if (!this.isValidMessageContent(value)) {
+    if (!value || !this.isValidMessageContent(value)) {
       return Result.fail({
         code: CUSTOM_ERRORS.USER_INPUT_ERROR,
-        msg: `content must be less than or equal to ${MessageContent.maxMessageContentLength} characters long`,
+        msg: `message content must be less than or equal to ${MessageContent.maxMessageContentLength} characters long`,
       });
     }
 

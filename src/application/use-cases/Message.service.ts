@@ -53,7 +53,7 @@ export class MessageService {
       return Result.fail(contactUserOrError.getError());
 
     const contactUser = contactUserOrError.getValue();
-    const contactId = contactUser.props.id.value;
+    const contactId = contactUser?.props?.id?.value;
 
     const messageHistoryWithContact =
       await this.messageRepository.getMessageHistoryWithContact(

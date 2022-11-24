@@ -7,7 +7,7 @@ type UserUsernameValue = string;
 export class UserUsername extends ValueObject<UserUsernameValue> {
   private static readonly minUsernameLength = 5;
 
-  public static isValidUsername(username: UserUsernameValue): boolean {
+  private static isValidUsername(username: UserUsernameValue): boolean {
     if (username.length < UserUsername.minUsernameLength) {
       return false;
     }
@@ -15,7 +15,7 @@ export class UserUsername extends ValueObject<UserUsernameValue> {
   }
 
   public static create(value: UserUsernameValue): Result<UserUsername> {
-    if (!this.isValidUsername(value)) {
+    if (!value || !this.isValidUsername(value)) {
       return Result.fail({
         code: CUSTOM_ERRORS.USER_INPUT_ERROR,
         msg: `username must be greater than or equal to ${UserUsername.minUsernameLength} characters long`,

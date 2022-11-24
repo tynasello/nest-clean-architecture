@@ -10,11 +10,11 @@ export abstract class BaseController {
     return this.success(result.getValue());
   }
 
-  public success(dto?: any) {
+  private success(dto?: any) {
     return dto ? dto : null;
   }
 
-  public error(resultError: ResultError) {
+  private error(resultError: ResultError) {
     const { code, msg } = resultError;
 
     switch (code) {
@@ -32,7 +32,7 @@ export abstract class BaseController {
 
       default:
         throw new HttpException(
-          `Internal server error: ${msg}`,
+          `Internal server error${msg ? `: ${msg}` : ''}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
         );
     }

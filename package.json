@@ -85,7 +85,13 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
+    "moduleDirectories": [
+      "node_modules",
+      "src"
+    ],
+    "roots": [
+      "src"
+    ],
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
@@ -94,7 +100,13 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "@domain/(.*)": "<rootDir>/src/domain/$1",
+      "@application/(.*)": "<rootDir>/src/application/$1",
+      "@infrastructure/(.*)": "<rootDir>/src/infrastructure/$1",
+      "@interface-adapters/(.*)": "<rootDir>/src/interface-adapters/$1"
+    }
   },
   "prisma": {
     "schema": "src/infrastructure/db/prisma/schema.prisma"

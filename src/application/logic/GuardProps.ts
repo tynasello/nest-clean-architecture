@@ -2,6 +2,8 @@ import { Result } from '@application/logic/Result';
 import { CUSTOM_ERRORS } from '@domain/errors/CustomErrors';
 
 export class GuardProps {
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
   public static againstNullOrUndefined(
     argument: any,
     argumentName: string,
@@ -15,6 +17,9 @@ export class GuardProps {
       return Result.ok(argument);
     }
   }
+
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
   public static againstIncorrectType(
     argument: any,
     argumentName: string,
