@@ -7,3 +7,14 @@ export class PrismaService extends PrismaClient {
     super();
   }
 }
+export class TestPrismaService extends PrismaClient {
+  constructor() {
+    super({
+      datasources: {
+        db: {
+          url: process.env.DATABASE_TEST_URL,
+        },
+      },
+    });
+  }
+}

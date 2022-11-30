@@ -9,21 +9,14 @@ services:
     env_file:
     - .env
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}?schema=public
     command: npm run start:dev
     ports:
-      - 3000:3000
+      - ${PORT}:${PORT}
     depends_on:
-    - redis
     - postgres
-
-  redis:
-    image: redis
-    ports:
-      - 6379:6379
-    volumes:
-      - redis:/data
-
+    - postgres-test
+    
   postgres:
     image: postgres
     restart: always
@@ -32,9 +25,19 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - '5432:5432'
+      - ${POSTGRES_PORT}:5432
     volumes:
       - docker-nest-postgres:/var/lib/postgresql/data
+
+  postgres-test:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_TEST_DB}
+      POSTGRES_USER: ${POSTGRES_TEST_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_TEST_PASSWORD}
+    ports:
+      - ${POSTGRES_TEST_PORT}:5432
 
 volumes:
   redis:
