@@ -1,3 +1,4 @@
+import { UserProfileColor } from '@domain/value-objects/user/UserProfileColor';
 import {
   PrismaService,
   TestPrismaService,
@@ -37,37 +38,95 @@ describe('UserController (e2e)', () => {
 
   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-  it('should create a user', async () => {
-    const createUserDto = {
-      username: 'tytest',
-      password: '12345',
-      profileColor: 'orange',
-    };
-    const expectedUserDto = {
-      id: expect.any(String),
-      username: createUserDto.username,
-      profileColor: createUserDto.profileColor,
-    };
-    let accessToken: string;
+  describe('create', () => {
+    it('should create a user', async () => {
+      const createUserDto = {
+        username: 'tytest',
+        password: '12345',
+        profileColor: 'orange',
+      };
+      const expectedUserDto = {
+        id: expect.any(String),
+        username: createUserDto.username,
+        profileColor: createUserDto.profileColor,
+      };
+      let accessToken: string;
 
-    await request(app.getHttpServer())
-      .post('/auth/signup')
-      .send(createUserDto)
-      .expect(201)
-      .expect(({ body }) => {
-        accessToken = body.accessToken;
-        expect(body).toMatchObject({
-          accessToken: expect.any(String),
-          refreshToken: expect.any(String),
+      await request(app.getHttpServer())
+        .post('/auth/signup')
+        .send(createUserDto)
+        .expect(201)
+        .expect(({ body }) => {
+          accessToken = body.accessToken;
+          expect(body).toMatchObject({
+            accessToken: expect.any(String),
+            refreshToken: expect.any(String),
+          });
         });
-      });
 
-    await request(app.getHttpServer())
-      .get('/user')
-      .set('cookie', `accessToken=${accessToken}`)
-      .expect(200)
-      .expect(({ body }) => {
-        expect(body).toMatchObject(expectedUserDto);
-      });
+      await request(app.getHttpServer())
+        .get('/user')
+        .set('cookie', `accessToken=${accessToken}`)
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toMatchObject(expectedUserDto);
+        });
+    });
+
+    /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+    it('should return error if request dto is invalid', async () => {
+      const createUserDto = {
+        username: '',
+        password: '12345',
+        profileColor: 'orange',
+      };
+      const expectedResponse = {
+        message: ['username should not be empty'],
+      };
+
+      await request(app.getHttpServer())
+        .post('/auth/signup')
+        .send(createUserDto)
+        .expect(400)
+        .expect(({ body }) => {
+          expect(body).toMatchObject(expectedResponse);
+        });
+    });
+
+    /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+    it('should fallback to default profile color if request dto contains invalid one', async () => {
+      const createUserDto = {
+        username: 'tytest',
+        password: '12345',
+      };
+      const expectedUserDto = {
+        id: expect.any(String),
+        username: createUserDto.username,
+        profileColor: UserProfileColor.defaultUserProfileColor,
+      };
+      let accessToken: string;
+
+      await request(app.getHttpServer())
+        .post('/auth/signup')
+        .send(createUserDto)
+        .expect(201)
+        .expect(({ body }) => {
+          accessToken = body.accessToken;
+          expect(body).toMatchObject({
+            accessToken: expect.any(String),
+            refreshToken: expect.any(String),
+          });
+        });
+
+      await request(app.getHttpServer())
+        .get('/user')
+        .set('cookie', `accessToken=${accessToken}`)
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body).toMatchObject(expectedUserDto);
+        });
+    });
   });
 });

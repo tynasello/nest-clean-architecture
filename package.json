@@ -1,8 +1,8 @@
 {
-  "name": "m",
+  "name": "nest-clean-api-template",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "Clean Architecture API Template in NestJS",
+  "author": "tynasello",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
@@ -19,8 +19,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "prisma:generate": "npx prisma generate",
-    "migrate:dev": "npx prisma migrate dev"
+    "migrate:dev": "npx prisma migrate dev",
+    "migrate:test": "npx prisma migrate deploy"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
@@ -38,6 +38,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "cookie-parser": "^1.4.6",
+    "dotenv-cli": "^6.0.0",
     "jwt-decode": "^3.1.2",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
