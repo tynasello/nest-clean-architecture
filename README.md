@@ -19,10 +19,15 @@ Current State:
 - Unit tests exist for certain parts of code base.
 - End-to-end tests exist for certain controllers
 
+Getting Started:
+- Start project services (api and databases) with `docker-compose up`.
+- Run database migrations with `npm run migrate`.
+
 Tools Used:
 - NestJS
 - Prisma
 - PostgreSQL
+- Docker
 - Jest
 - Redis
 - Socket.io

@@ -1,6 +1,8 @@
-node_modules
-docker-compose*.yml
-npm-debug
-dist
+.dockerignore
 .git
+*Dockerfile*
+*docker-compose*
+node_modules
+dist
+npm-debug
 docker-volumes
