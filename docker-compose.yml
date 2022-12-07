@@ -1,6 +1,6 @@
 services:
   api:
-    container_name: nest-clean-api-template-api
+    container_name: nest-api
     build:
       dockerfile: Dockerfile
       context: .
@@ -29,7 +29,7 @@ services:
     ports:
       - ${DEV_POSTGRES_PORT}:5432
     volumes:
-      - dev-db-volume:/var/lib/postgresql/data
+      - ./src/infrastructure/docker-volumes/dev-db-volume:/var/lib/postgresql/data
 
   test-db:
     container_name: test-postgres-db
@@ -43,6 +43,3 @@ services:
       POSTGRES_PASSWORD: ${TEST_POSTGRES_PASSWORD}
     ports:
       - ${TEST_POSTGRES_PORT}:5432
-
-volumes:
-  dev-db-volume:

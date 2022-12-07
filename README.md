@@ -31,5 +31,3 @@ Tools Used:
 Project Structure
 
 - Database scheme [here](src/infrastructure/db/prisma/schema.prisma).
-
-- [File Structure](./file-structure.md)

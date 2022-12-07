@@ -7,7 +7,7 @@ import {
   DomainEventManager,
 } from '@domain/events/DomainEventManager';
 import { IUserRepository } from '@domain/interfaces/repositories/IUserRepository';
-import { PrismaService } from '@infrastructure/db/prisma/Prisma.service';
+import { PrismaService } from '@infrastructure/prisma/Prisma.service';
 import { Inject, Injectable } from '@nestjs/common';
 
 type IdentifierProps = {

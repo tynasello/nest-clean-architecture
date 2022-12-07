@@ -4,7 +4,7 @@ import {
   DomainEventEnum,
   DomainEventManager,
 } from '@domain/events/DomainEventManager';
-import { PrismaService } from '@infrastructure/db/prisma/Prisma.service';
+import { PrismaService } from '@infrastructure/prisma/Prisma.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MessageRepository } from '../Message.repository';
 

@@ -2,7 +2,7 @@ import { UserProfileColor } from '@domain/value-objects/user/UserProfileColor';
 import {
   PrismaService,
   TestPrismaService,
-} from '@infrastructure/db/prisma/Prisma.service';
+} from '@infrastructure/prisma/Prisma.service';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as cookieParser from 'cookie-parser';

@@ -11,10 +11,12 @@ import { User } from '@domain/entities/User';
 import { CUSTOM_ERRORS } from '@domain/errors/CustomErrors';
 import { UserPassword } from '@domain/value-objects/user/UserPassword';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly configService: ConfigService,
     private readonly userService: UserService,
     private readonly authTokenService: AuthTokenService,
   ) {}
@@ -161,7 +163,7 @@ export class AuthService {
         sub: user.props.id,
       },
       {
-        secret: process.env.ACCESS_TOKEN_SECRET,
+        secret: this.configService.get<string>('ACCESS_TOKEN_SECRET'),
         expiresIn: 600,
       },
     );
@@ -175,7 +177,7 @@ export class AuthService {
         sub: user.props.id,
       },
       {
-        secret: process.env.REFRESH_TOKEN_SECRET,
+        secret: this.configService.get<string>('REFRESH_TOKEN_SECRET'),
         expiresIn: 604800,
       },
     );

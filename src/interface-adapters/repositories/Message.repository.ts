@@ -6,7 +6,7 @@ import {
   DomainEventManager,
 } from '@domain/events/DomainEventManager';
 import { IMessageRepository } from '@domain/interfaces/repositories/IMessageRepository';
-import { PrismaService } from '@infrastructure/db/prisma/Prisma.service';
+import { PrismaService } from '@infrastructure/prisma/Prisma.service';
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()

@@ -3,7 +3,7 @@ import { ServicesModule } from '@application/services/Services.module';
 import { AuthService } from '@application/use-cases/Auth.service';
 import { UserService } from '@application/use-cases/User.service';
 import { DomainEventManager } from '@domain/events/DomainEventManager';
-import { PrismaService } from '@infrastructure/db/prisma/Prisma.service';
+import { PrismaService } from '@infrastructure/prisma/Prisma.service';
 import { AccessTokenStrategy } from '@interface-adapters/auth-strategies/accessToken.strategy';
 import { RefreshTokenStrategy } from '@interface-adapters/auth-strategies/refreshToken.strategy';
 import { DomainEventsSubscriberModule } from '@interface-adapters/domain-event-subscribers/DomainEventSubscriber.module';
