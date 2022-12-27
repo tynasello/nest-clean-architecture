@@ -1,0 +1,21 @@
+{
+  "moduleDirectories": ["node_modules", "<rootDir>"],
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": ".",
+  "testMatch": ["**/e2e/**"],
+  "testEnvironment": "node",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  }
+}
+
+// "collectCoverageFrom": ["**/adapters/primaries/**.ts"],
+// "coverageThreshold": {
+//   "**/adapters/primaries/**.ts": {
+//     "branches": 100,
+//     "functions": 100,
+//     "lines": 100,
+//     "statements": 100
+//   }
+// },
+// "coverageDirectory": "./coverage",

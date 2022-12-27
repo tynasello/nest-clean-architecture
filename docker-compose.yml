@@ -29,7 +29,7 @@ services:
     ports:
       - ${DEV_POSTGRES_PORT}:5432
     volumes:
-      - ./src/infrastructure/docker-volumes/dev-db-volume:/var/lib/postgresql/data
+      - ./docker-db-volumes/dev-db-volume:/var/lib/postgresql/data
 
   test-db:
     container_name: test-postgres-db

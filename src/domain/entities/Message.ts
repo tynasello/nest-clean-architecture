@@ -1,33 +1,21 @@
-import { Result } from '@application/logic/Result';
-import { User } from '@domain/entities/User';
-import { AggregateRoot } from '@domain/primitives/AggregateRoot';
-import { Id } from '@domain/value-objects/Id';
-import { MessageContent } from '@domain/value-objects/message/MessageContent';
+import { User } from './user';
 
-type MessageProps = {
-  id: Id;
-  content: MessageContent;
+interface MessageProps {
+  id: string;
+  content: string;
   createdAt: Date;
   sender: User;
-  receiver: User;
-};
+  reciever: User;
+}
 
-export class Message extends AggregateRoot<MessageProps> {
-  private constructor(props: MessageProps) {
-    super(props);
-  }
+export interface Message extends MessageProps {}
 
-  public static create(props: Partial<MessageProps>): Result<Message> {
-    const { id, content, createdAt, sender, receiver } = props;
-
-    const user = new Message({
-      id,
-      content,
-      createdAt,
-      sender,
-      receiver,
-    });
-
-    return Result.ok<Message>(user);
+export class Message {
+  constructor(props: MessageProps) {
+    this.id = props.id;
+    this.content = props.content;
+    this.createdAt = props.createdAt;
+    this.sender = props.sender;
+    this.reciever = props.reciever;
   }
 }

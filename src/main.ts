@@ -11,6 +11,10 @@ async function bootstrap() {
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe());
 
+  if (process.env.NODE_ENV !== 'test') {
+    app.enableShutdownHooks();
+  }
+
   await app.listen(
     parseInt(configService.get<string>('NEST_API_PORT')) || 3000,
   );

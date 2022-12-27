@@ -1,8 +1,8 @@
-import { CUSTOM_ERRORS } from '@domain/errors/CustomErrors';
+import { CUSTOM_ERRORS } from 'src/domain/errors/custom-errors';
 
 export type ResultError = {
   code: CUSTOM_ERRORS;
-  msg: string;
+  message: string;
 };
 
 export class Result<T> {
@@ -11,7 +11,7 @@ export class Result<T> {
   private readonly _error: ResultError;
   private readonly _value: T;
 
-  public constructor(isSuccess: boolean, error?: ResultError, value?: T) {
+  public constructor(isSuccess: boolean, value?: T, error?: ResultError) {
     this.isSuccess = isSuccess;
     this.isFailure = !isSuccess;
     this._error = error;
@@ -20,24 +20,24 @@ export class Result<T> {
 
   public getValue(): T {
     if (this.isFailure) {
-      throw new Error('cannot get value for failed result');
+      throw new Error('Cannot get value for a failed result.');
     }
     return this._value;
   }
 
   public getError(): ResultError {
     if (this.isSuccess) {
-      throw new Error('cannot get error for successful result');
+      throw new Error('Cannot get error for a successful result.');
     }
     return this._error;
   }
 
   public static ok<U>(value?: U): Result<U> {
-    return new Result<U>(true, null, value);
+    return new Result<U>(true, value, null);
   }
 
   public static fail(error: ResultError): Result<any> {
-    return new Result(false, error, null);
+    return new Result(false, null, error);
   }
 
   public static combineResults(combinedResults: Result<any>[]): Result<any> {
