@@ -18,7 +18,7 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt') {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => {
-          return request?.cookies?.accessToken;
+          return request?.cookies?.accessToken || request.headers.accesstoken; // the latter is for e2e tests (supertest is only capable of storing cookies in headers)
         },
       ]),
       secretOrKey: _configService.get<string>('AUTH_TOKEN_SECRET'),

@@ -6,6 +6,7 @@ import {
   PrismaService,
   TestPrismaService,
 } from 'src/infrastructure/db/prisma/prisma.service';
+import { RepositoriesModule } from 'src/infrastructure/repositories/repositories.module';
 import { UserRepository } from 'src/infrastructure/repositories/user/user.repository';
 
 let userRepository: UserRepository;
@@ -13,17 +14,11 @@ let prismaService: PrismaService;
 
 beforeAll(async () => {
   const module = await Test.createTestingModule({
-    imports: [
-      ConfigModule.forRoot({
-        isGlobal: true,
-        envFilePath: ['.env'],
-      }),
-    ],
-    providers: [
-      UserRepository,
-      { provide: PrismaService, useClass: TestPrismaService },
-    ],
-  }).compile();
+    imports: [RepositoriesModule],
+  })
+    .overrideProvider(PrismaService)
+    .useClass(TestPrismaService)
+    .compile();
   userRepository = module.get<UserRepository>(UserRepository);
   prismaService = module.get<PrismaService>(PrismaService);
   await cleanUp();

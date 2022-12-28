@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { AuthUseCase } from 'src/application/use-cases/auth-use-case';
+import { UserAuthUseCase } from 'src/application/use-cases/user-auth-use-case';
 import { AuthTokenService } from 'src/infrastructure/services/auth-token/auth-token.service';
 import { UseCaseProxy } from 'src/infrastructure/use-cases-proxy/use-cases-proxy';
 import { UseCaseProxyModule } from 'src/infrastructure/use-cases-proxy/use-cases-proxy.module';
@@ -13,8 +13,8 @@ export class AccessTokenGuard extends AuthGuard('jwt') {
   constructor(
     @Inject(AuthTokenService)
     private readonly _authTokenService: AuthTokenService,
-    @Inject(UseCaseProxyModule.SIGNUP_USE_CASE_PROXY)
-    private readonly _authUseCaseProxy: UseCaseProxy<AuthUseCase>,
+    @Inject(UseCaseProxyModule.USER_AUTH_USE_CASE_PROXY)
+    private readonly _authUseCaseProxy: UseCaseProxy<UserAuthUseCase>,
   ) {
     super();
   }
@@ -22,9 +22,9 @@ export class AccessTokenGuard extends AuthGuard('jwt') {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
-
     try {
-      const accessToken = request?.cookies?.accessToken;
+      const accessToken =
+        request?.cookies?.accessToken || request.headers.accesstoken; // the latter is for e2e tests (supertest is only capable of storing cookies in headers)
       if (!accessToken) throw new UnauthorizedException();
       const isValidAccessToken = await this._authTokenService.verifyAuthToken(
         accessToken,

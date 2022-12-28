@@ -11,7 +11,7 @@ type AuthTokens = {
   refreshToken: string;
 };
 
-export class AuthUseCase {
+export class UserAuthUseCase {
   constructor(
     private readonly _configService: ConfigService,
     private readonly _userRepository: IUserRepository,

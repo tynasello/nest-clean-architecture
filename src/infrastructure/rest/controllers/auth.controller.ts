@@ -6,7 +6,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { AuthUseCase } from 'src/application/use-cases/auth-use-case';
+import { UserAuthUseCase } from 'src/application/use-cases/user-auth-use-case';
 import { User } from 'src/domain/entities/user';
 import { SignupUserRequestDto } from 'src/infrastructure/rest/dto/auth/signup-user-request.dto';
 import { SignupUserResponseDto } from 'src/infrastructure/rest/dto/auth/signup-user-response.dto';
@@ -22,8 +22,8 @@ import { BaseController } from './base-controller';
 @Controller('auth')
 export class AuthController extends BaseController {
   constructor(
-    @Inject(UseCaseProxyModule.SIGNUP_USE_CASE_PROXY)
-    private readonly _authUseCaseProxy: UseCaseProxy<AuthUseCase>,
+    @Inject(UseCaseProxyModule.USER_AUTH_USE_CASE_PROXY)
+    private readonly _userAuthUseCaseProxy: UseCaseProxy<UserAuthUseCase>,
   ) {
     super();
   }
@@ -37,7 +37,7 @@ export class AuthController extends BaseController {
       username: signupUserDto.username,
       password: signupUserDto.password,
     });
-    const createdAuthTokensOrError = await this._authUseCaseProxy
+    const createdAuthTokensOrError = await this._userAuthUseCaseProxy
       .getInstance()
       .signupUser(user);
     if (createdAuthTokensOrError.isFailure) {
@@ -57,7 +57,7 @@ export class AuthController extends BaseController {
       username: loginUserDto.username,
       password: loginUserDto.password,
     });
-    const createdAuthTokensOrError = await this._authUseCaseProxy
+    const createdAuthTokensOrError = await this._userAuthUseCaseProxy
       .getInstance()
       .loginUser(user);
     if (createdAuthTokensOrError.isFailure) {
@@ -74,7 +74,7 @@ export class AuthController extends BaseController {
   public async logoutUser(
     @GetUserFromReq('username') username: string,
   ): Promise<void> {
-    const userLoggedOutOrError = await this._authUseCaseProxy
+    const userLoggedOutOrError = await this._userAuthUseCaseProxy
       .getInstance()
       .logoutUser(username);
     if (userLoggedOutOrError.isFailure) {

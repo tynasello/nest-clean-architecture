@@ -1,7 +1,8 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { AuthUseCase } from 'src/application/use-cases/auth-use-case';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { UserAuthUseCase } from 'src/application/use-cases/user-auth-use-case';
 import { GetUserUseCase } from 'src/application/use-cases/get-user-use-case';
+import { FakeUserRepository } from 'src/__test__/fake-adapters/fake-user.repository';
 import { RepositoriesModule } from '../repositories/repositories.module';
 import { UserRepository } from '../repositories/user/user.repository';
 import { AuthTokenModule } from '../services/auth-token/auth-token.module';
@@ -11,13 +12,21 @@ import { HashService } from '../services/hash/hash.service';
 import { UseCaseProxy } from './use-cases-proxy';
 
 @Module({
-  imports: [RepositoriesModule, HashModule, AuthTokenModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env'],
+    }),
+    RepositoriesModule,
+    HashModule,
+    AuthTokenModule,
+  ],
 })
 export class UseCaseProxyModule {
-  static SIGNUP_USE_CASE_PROXY = 'SIGNUP_USE_CASE_PROXY';
+  static USER_AUTH_USE_CASE_PROXY = 'USER_AUTH_USE_CASE_PROXY';
   static GET_USER_USE_CASE_PROXY = 'GET_USER_USE_CASE_PROXY';
 
-  static register(): DynamicModule {
+  static register(useFakeAdapters?: boolean): DynamicModule {
     return {
       module: UseCaseProxyModule,
       providers: [
@@ -25,34 +34,43 @@ export class UseCaseProxyModule {
           inject: [
             ConfigService,
             UserRepository,
+            FakeUserRepository,
             HashService,
             AuthTokenService,
           ],
-          provide: UseCaseProxyModule.SIGNUP_USE_CASE_PROXY,
+          provide: UseCaseProxyModule.USER_AUTH_USE_CASE_PROXY,
           useFactory: (
             configService: ConfigService,
             userRepository: UserRepository,
+            fakeUserRepository: FakeUserRepository,
             hashService: HashService,
             authTokenService: AuthTokenService,
           ) =>
             new UseCaseProxy(
-              new AuthUseCase(
+              new UserAuthUseCase(
                 configService,
-                userRepository,
+                useFakeAdapters ? fakeUserRepository : userRepository,
                 hashService,
                 authTokenService,
               ),
             ),
         },
         {
-          inject: [UserRepository],
+          inject: [UserRepository, FakeUserRepository],
           provide: UseCaseProxyModule.GET_USER_USE_CASE_PROXY,
-          useFactory: (userRepository: UserRepository) =>
-            new UseCaseProxy(new GetUserUseCase(userRepository)),
+          useFactory: (
+            userRepository: UserRepository,
+            fakeUserRepository: FakeUserRepository,
+          ) =>
+            new UseCaseProxy(
+              new GetUserUseCase(
+                useFakeAdapters ? fakeUserRepository : userRepository,
+              ),
+            ),
         },
       ],
       exports: [
-        UseCaseProxyModule.SIGNUP_USE_CASE_PROXY,
+        UseCaseProxyModule.USER_AUTH_USE_CASE_PROXY,
         UseCaseProxyModule.GET_USER_USE_CASE_PROXY,
       ],
     };
