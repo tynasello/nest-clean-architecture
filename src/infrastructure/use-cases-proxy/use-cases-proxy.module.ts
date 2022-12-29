@@ -10,6 +10,9 @@ import { AuthTokenService } from '../services/auth-token/auth-token.service';
 import { HashModule } from '../services/hash/hash.module';
 import { HashService } from '../services/hash/hash.service';
 import { UseCaseProxy } from './use-cases-proxy';
+import { MessageRepository } from '../repositories/message/message.repository';
+import { CreateMessageUseCase } from 'src/application/use-cases/create-message-use-case';
+import { GetMessageHistoryWithUsernameUseCase } from 'src/application/use-cases/get-message-history-with-username.use-case';
 
 @Module({
   imports: [
@@ -25,6 +28,9 @@ import { UseCaseProxy } from './use-cases-proxy';
 export class UseCaseProxyModule {
   static USER_AUTH_USE_CASE_PROXY = 'USER_AUTH_USE_CASE_PROXY';
   static GET_USER_USE_CASE_PROXY = 'GET_USER_USE_CASE_PROXY';
+  static CREATE_MESSAGE_USE_CASE_PROXY = 'CREATE_MESSAGE_USE_CASE_PROXY';
+  static GET_MESSAGE_HISTORY_WITH_USERNAME_USE_CASE_PROXY =
+    'GET_MESSAGE_HISTORY_WITH_USERNAME_USE_CASE_PROXY';
 
   static register(useFakeAdapters?: boolean): DynamicModule {
     return {
@@ -68,10 +74,38 @@ export class UseCaseProxyModule {
               ),
             ),
         },
+        {
+          inject: [MessageRepository, UserRepository],
+          provide: UseCaseProxyModule.CREATE_MESSAGE_USE_CASE_PROXY,
+          useFactory: (
+            messageRepository: MessageRepository,
+            userRepository: UserRepository,
+          ) =>
+            new UseCaseProxy(
+              new CreateMessageUseCase(messageRepository, userRepository),
+            ),
+        },
+        {
+          inject: [MessageRepository, UserRepository],
+          provide:
+            UseCaseProxyModule.GET_MESSAGE_HISTORY_WITH_USERNAME_USE_CASE_PROXY,
+          useFactory: (
+            messageRepository: MessageRepository,
+            userRepository: UserRepository,
+          ) =>
+            new UseCaseProxy(
+              new GetMessageHistoryWithUsernameUseCase(
+                messageRepository,
+                userRepository,
+              ),
+            ),
+        },
       ],
       exports: [
         UseCaseProxyModule.USER_AUTH_USE_CASE_PROXY,
         UseCaseProxyModule.GET_USER_USE_CASE_PROXY,
+        UseCaseProxyModule.CREATE_MESSAGE_USE_CASE_PROXY,
+        UseCaseProxyModule.GET_MESSAGE_HISTORY_WITH_USERNAME_USE_CASE_PROXY,
       ],
     };
   }

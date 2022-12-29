@@ -1,17 +1,17 @@
-import { User } from './user';
+import { Message } from 'src/domain/entities/message';
 
-interface MessageProps {
-  id?: string;
+interface MessageDtoProps {
+  id: string;
   content: string;
-  createdAt?: Date;
+  createdAt: Date;
   senderUsername: string;
   receiverUsername: string;
 }
 
-export interface Message extends MessageProps {}
+export interface MessageDto extends MessageDtoProps {}
 
-export class Message {
-  constructor(props: MessageProps) {
+export class MessageDto {
+  constructor(props: Message) {
     this.id = props.id;
     this.content = props.content;
     this.createdAt = props.createdAt;

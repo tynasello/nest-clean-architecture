@@ -3,11 +3,12 @@ import { AccessTokenStrategy } from 'src/infrastructure/common/strategies/access
 import { AuthTokenModule } from 'src/infrastructure/services/auth-token/auth-token.module';
 import { UseCaseProxyModule } from '../../use-cases-proxy/use-cases-proxy.module';
 import { AuthController } from './auth.controller';
+import { MessageController } from './message.controller';
 import { UserController } from './user.controller';
 
 @Module({
   imports: [UseCaseProxyModule.register(), AuthTokenModule],
   providers: [AccessTokenStrategy],
-  controllers: [AuthController, UserController],
+  controllers: [AuthController, UserController, MessageController],
 })
 export class ControllersModule {}

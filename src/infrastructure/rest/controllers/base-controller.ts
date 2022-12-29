@@ -4,6 +4,8 @@ import { CUSTOM_ERRORS } from 'src/domain/errors/custom-errors';
 
 export abstract class BaseController {
   public handleFailedResult(resultError: ResultError) {
+    console.log(resultError);
+
     const { code, message } = resultError;
 
     switch (code) {

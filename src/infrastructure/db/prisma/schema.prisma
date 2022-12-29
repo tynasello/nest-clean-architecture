@@ -12,8 +12,8 @@ datasource db {
 }
 
 model User {
-  id               String    @id @default(uuid())
-  username         String    @unique
+  id               String    @default(uuid())
+  username         String    @id 
   password         String
   refreshToken     String?
   sentMessages     Message[] @relation("sentMessages")
@@ -24,8 +24,8 @@ model Message {
   id         String   @id @default(uuid())
   content    String
   createdAt  DateTime @default(now())
-  sender     User     @relation(name: "sentMessages", fields: [senderId], references: [id])
-  receiver   User     @relation(name: "receivedMessages", fields: [receiverId], references: [id])
-  senderId   String
-  receiverId String
+  sender     User     @relation(name: "sentMessages", fields: [senderUsername], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  receiver   User     @relation(name: "receivedMessages", fields: [receiverUsername], references: [username], onDelete: Cascade, onUpdate: Cascade)
+  senderUsername   String
+  receiverUsername String
 }

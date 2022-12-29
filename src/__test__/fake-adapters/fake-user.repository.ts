@@ -9,7 +9,9 @@ import { PersistedUser } from 'src/infrastructure/repositories/user/persisted-us
 export class FakeUserRepository implements IUserRepository {
   private persistedUsers: PersistedUser[] = [];
 
-  public async createUser(user: User): Promise<Result<User>> {
+  public async createUser(
+    user: Omit<User, 'id' | 'refreshToken'>,
+  ): Promise<Result<User>> {
     if (
       this.persistedUsers.find(
         (existingUser: User) => existingUser.username == user.username,
@@ -75,7 +77,7 @@ export class FakeUserRepository implements IUserRepository {
   }
 
   private toPersistedUserEntity(
-    user: User,
+    user: Omit<User, 'id' | 'refreshToken'>,
   ): Omit<PersistedUser, 'id' | 'refreshToken'> {
     const persistedUser = new PersistedUser();
     persistedUser.username = user.username;

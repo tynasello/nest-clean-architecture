@@ -10,7 +10,9 @@ import { PersistedUser } from './persisted-user';
 export class UserRepository implements IUserRepository {
   constructor(private readonly _prismaService: PrismaService) {}
 
-  public async createUser(user: User): Promise<Result<User>> {
+  public async createUser(
+    user: Omit<User, 'id' | 'refreshToken'>,
+  ): Promise<Result<User>> {
     const persistedUser = this.toPersistedUserEntity(user);
     try {
       const createdUser = this.toUserDomainEntity(
@@ -73,7 +75,7 @@ export class UserRepository implements IUserRepository {
   }
 
   private toPersistedUserEntity(
-    user: User,
+    user: Omit<User, 'id' | 'refreshToken'>,
   ): Omit<PersistedUser, 'id' | 'refreshToken'> {
     const persistedUser = new PersistedUser();
     persistedUser.username = user.username;
