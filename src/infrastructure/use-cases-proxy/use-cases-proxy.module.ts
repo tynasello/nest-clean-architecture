@@ -13,6 +13,8 @@ import { UseCaseProxy } from './use-cases-proxy';
 import { MessageRepository } from '../repositories/message/message.repository';
 import { CreateMessageUseCase } from 'src/application/use-cases/create-message-use-case';
 import { GetMessageHistoryWithUsernameUseCase } from 'src/application/use-cases/get-message-history-with-username.use-case';
+import { GatewayModule } from '../gateways/gateway.module';
+import { MessageGateway } from '../gateways/message.gateway';
 
 @Module({
   imports: [
@@ -23,6 +25,7 @@ import { GetMessageHistoryWithUsernameUseCase } from 'src/application/use-cases/
     RepositoriesModule,
     HashModule,
     AuthTokenModule,
+    GatewayModule,
   ],
 })
 export class UseCaseProxyModule {
@@ -75,14 +78,19 @@ export class UseCaseProxyModule {
             ),
         },
         {
-          inject: [MessageRepository, UserRepository],
+          inject: [MessageRepository, UserRepository, MessageGateway],
           provide: UseCaseProxyModule.CREATE_MESSAGE_USE_CASE_PROXY,
           useFactory: (
             messageRepository: MessageRepository,
             userRepository: UserRepository,
+            messageGateway: MessageGateway,
           ) =>
             new UseCaseProxy(
-              new CreateMessageUseCase(messageRepository, userRepository),
+              new CreateMessageUseCase(
+                messageRepository,
+                userRepository,
+                messageGateway,
+              ),
             ),
         },
         {

@@ -1,5 +1,6 @@
 import { Message } from 'src/domain/entities/message';
 import { CUSTOM_ERRORS } from 'src/domain/errors/custom-errors';
+import { IMessageGateway } from '../interfaces/message-gateway.interface';
 import { IMessageRepository } from '../interfaces/message-repository.interface';
 import { IUserRepository } from '../interfaces/user-repository.interface';
 import { Result } from '../logic/result';
@@ -8,6 +9,7 @@ export class CreateMessageUseCase {
   constructor(
     private readonly _messageRepository: IMessageRepository,
     private readonly _userRepository: IUserRepository,
+    private readonly _messageGateway: IMessageGateway,
   ) {}
 
   public async createMessage(
@@ -38,6 +40,7 @@ export class CreateMessageUseCase {
       return Result.fail(createdMessageOrError.getError());
     }
     const createdMessage = createdMessageOrError.getValue();
+    this._messageGateway.newMessageCreated(createdMessage);
     return Result.ok<Message>(createdMessage);
   }
 }
