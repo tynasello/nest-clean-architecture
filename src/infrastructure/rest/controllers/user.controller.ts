@@ -3,7 +3,7 @@ import { GetUserUseCase } from 'src/application/use-cases/get-user-use-case';
 import { UseCaseProxy } from 'src/infrastructure/use-cases-proxy/use-cases-proxy';
 import { UseCaseProxyModule } from 'src/infrastructure/use-cases-proxy/use-cases-proxy.module';
 import { GetUserFromReq } from '../decorators/get-user-from-req.decorator';
-import { GetUserResponseDto } from '../dto/user/get-user-response.dto';
+import { GetUserResponseDto } from '../dtos/user/get-user-response.dto';
 import { AccessTokenGuard } from '../guards/access-token.guard';
 import { BaseController } from './base-controller';
 

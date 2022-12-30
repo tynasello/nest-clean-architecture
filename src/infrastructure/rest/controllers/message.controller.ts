@@ -5,9 +5,9 @@ import { Message } from 'src/domain/entities/message';
 import { UseCaseProxy } from 'src/infrastructure/use-cases-proxy/use-cases-proxy';
 import { UseCaseProxyModule } from 'src/infrastructure/use-cases-proxy/use-cases-proxy.module';
 import { GetUserFromReq } from '../decorators/get-user-from-req.decorator';
-import { CreateMessageRequestDto } from '../dto/message/create-message-request.dto';
-import { GetMessageHistoryWithUsernameRequestDto } from '../dto/message/get-message-history-with-username-request.dto';
-import { MessageDto } from '../dto/message/get-message-history-with-username-response.dto';
+import { CreateMessageRequestDto } from '../dtos/message/create-message-request.dto';
+import { GetMessageHistoryWithUsernameRequestDto } from '../dtos/message/get-message-history-with-username-request.dto';
+import { MessageDto } from '../dtos/message/get-message-history-with-username-response.dto';
 import { AccessTokenGuard } from '../guards/access-token.guard';
 import { BaseController } from './base-controller';
 
