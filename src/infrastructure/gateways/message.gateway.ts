@@ -1,19 +1,18 @@
+import { UnauthorizedException } from '@nestjs/common';
 import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Message } from '@prisma/client';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { IMessageGateway } from 'src/application/interfaces/message-gateway.interface';
 import { AuthTokenService } from '../services/auth-token/auth-token.service';
-import { Socket } from 'socket.io';
-import { UnauthorizedException } from '@nestjs/common';
 
 @WebSocketGateway()
 export class MessageGateway implements IMessageGateway {
   constructor(private readonly _authTokenService: AuthTokenService) {}
 
   @WebSocketServer()
-  wss: Server;
+  private _wss: Server;
 
-  connectedUsername: string;
+  private _connectedUsername: string;
 
   public async handleConnection(socket: Socket) {
     try {
@@ -26,7 +25,7 @@ export class MessageGateway implements IMessageGateway {
         await this.handleDisconnect(socket);
       }
       const jwtPayload = this._authTokenService.decodeAuthToken(accessToken);
-      this.connectedUsername = jwtPayload.username;
+      this._connectedUsername = jwtPayload.username;
     } catch {
       return await this.handleDisconnect(socket);
     }
@@ -41,10 +40,10 @@ export class MessageGateway implements IMessageGateway {
   newMessageCreated(payload: Message): void {
     // if no connectedUser (user is not authenticated) return
     if (
-      !this.connectedUsername ||
-      this.connectedUsername != payload.receiverUsername
+      !this._connectedUsername ||
+      this._connectedUsername != payload.receiverUsername
     )
       return;
-    this.wss.emit('newMessageCreated', payload);
+    this._wss.emit('newMessageCreated', payload);
   }
 }
