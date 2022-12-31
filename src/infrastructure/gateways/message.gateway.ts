@@ -14,6 +14,8 @@ export class MessageGateway implements IMessageGateway {
 
   private _connectedUsername: string;
 
+  private static NEW_MESSAGE_CREATED = 'NEW_MESSAGE_CREATED';
+
   public async handleConnection(socket: Socket) {
     try {
       const authorizationHeader = socket.handshake.headers.authorization;
@@ -37,13 +39,13 @@ export class MessageGateway implements IMessageGateway {
     socket.disconnect();
   }
 
-  newMessageCreated(payload: Message): void {
+  public newMessageCreated(payload: Message): void {
     // if no connectedUser (user is not authenticated) return
     if (
       !this._connectedUsername ||
       this._connectedUsername != payload.receiverUsername
     )
       return;
-    this._wss.emit('newMessageCreated', payload);
+    this._wss.emit(MessageGateway.NEW_MESSAGE_CREATED, payload);
   }
 }
