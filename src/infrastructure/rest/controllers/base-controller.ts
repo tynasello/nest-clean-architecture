@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { ResultError } from 'src/application/logic/result';
-import { CUSTOM_ERRORS } from 'src/domain/errors/custom-errors';
+import { ResultError } from '../../../application/logic/result';
+import { CUSTOM_ERRORS } from '../../../domain/errors/custom-errors';
 
 export abstract class BaseController {
   public handleFailedResult(resultError: ResultError) {

@@ -1,9 +1,9 @@
 import { ConfigService } from '@nestjs/config';
-import { IUserRepository } from 'src/application/interfaces/user-repository.interface';
-import { User } from 'src/domain/entities/user';
-import { CUSTOM_ERRORS } from 'src/domain/errors/custom-errors';
+import { User } from '../../domain/entities/user';
+import { CUSTOM_ERRORS } from '../../domain/errors/custom-errors';
 import { IAuthTokenService } from '../interfaces/auth-token-service.interface';
 import { IHashService } from '../interfaces/hash-service.interface';
+import { IUserRepository } from '../interfaces/user-repository.interface';
 import { Result } from '../logic/result';
 
 type AuthTokens = {

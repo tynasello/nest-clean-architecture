@@ -1,5 +1,5 @@
-import { Result } from 'src/application/logic/result';
-import { Message } from 'src/domain/entities/message';
+import { Message } from '../../domain/entities/message';
+import { Result } from '../logic/result';
 
 export interface IMessageRepository {
   createMessage(message: Omit<Message, 'id'>): Promise<Result<Message>>;

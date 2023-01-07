@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { IUserRepository } from 'src/application/interfaces/user-repository.interface';
-import { Result } from 'src/application/logic/result';
-import { User } from 'src/domain/entities/user';
-import { CUSTOM_ERRORS } from 'src/domain/errors/custom-errors';
-import { PersistedUser } from 'src/infrastructure/repositories/user/persisted-user';
+import { IUserRepository } from '../../application/interfaces/user-repository.interface';
+import { Result } from '../../application/logic/result';
+import { User } from '../../domain/entities/user';
+import { CUSTOM_ERRORS } from '../../domain/errors/custom-errors';
+import { PersistedUser } from '../../infrastructure/repositories/user/persisted-user';
 
 @Injectable()
 export class FakeUserRepository implements IUserRepository {

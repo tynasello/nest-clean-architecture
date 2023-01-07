@@ -1,5 +1,5 @@
-import { Message } from 'src/domain/entities/message';
-import { CUSTOM_ERRORS } from 'src/domain/errors/custom-errors';
+import { Message } from '../../domain/entities/message';
+import { CUSTOM_ERRORS } from '../../domain/errors/custom-errors';
 import { IMessageRepository } from '../interfaces/message-repository.interface';
 import { IUserRepository } from '../interfaces/user-repository.interface';
 import { Result } from '../logic/result';

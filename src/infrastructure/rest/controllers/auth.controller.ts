@@ -6,17 +6,17 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { UserAuthUseCase } from 'src/application/use-cases/user-auth-use-case';
-import { User } from 'src/domain/entities/user';
-import { SignupUserRequestDto } from 'src/infrastructure/rest/dtos/auth/signup-user-request.dto';
-import { SignupUserResponseDto } from 'src/infrastructure/rest/dtos/auth/signup-user-response.dto';
-import { SetCookiesInterceptor } from 'src/infrastructure/rest/interceptors/set-cookies.interceptor';
-import { UseCaseProxy } from 'src/infrastructure/use-cases-proxy/use-cases-proxy';
-import { UseCaseProxyModule } from 'src/infrastructure/use-cases-proxy/use-cases-proxy.module';
+import { UserAuthUseCase } from '../../../application/use-cases/user-auth-use-case';
+import { User } from '../../../domain/entities/user';
+import { UseCaseProxy } from '../../use-cases-proxy/use-cases-proxy';
+import { UseCaseProxyModule } from '../../use-cases-proxy/use-cases-proxy.module';
 import { GetUserFromReq } from '../decorators/get-user-from-req.decorator';
 import { LoginUserRequestDto } from '../dtos/auth/login-user-request.dto';
 import { LoginUserResponseDto } from '../dtos/auth/login-user.response.dto';
+import { SignupUserRequestDto } from '../dtos/auth/signup-user-request.dto';
+import { SignupUserResponseDto } from '../dtos/auth/signup-user-response.dto';
 import { AccessTokenGuard } from '../guards/access-token.guard';
+import { SetCookiesInterceptor } from '../interceptors/set-cookies.interceptor';
 import { BaseController } from './base-controller';
 
 @Controller('auth')

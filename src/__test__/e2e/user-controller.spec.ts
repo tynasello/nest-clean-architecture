@@ -1,12 +1,11 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from 'src/app.module';
+import * as request from 'supertest';
+import { AppModule } from '../../app.module';
 import {
   PrismaService,
   TestPrismaService,
-} from 'src/infrastructure/db/prisma/prisma.service';
-import * as cookieParser from 'cookie-parser';
-import * as request from 'supertest';
+} from '../../infrastructure/services/prisma/prisma.service';
 
 let app: INestApplication;
 let testingModule: TestingModule;

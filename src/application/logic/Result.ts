@@ -1,4 +1,4 @@
-import { CUSTOM_ERRORS } from 'src/domain/errors/custom-errors';
+import { CUSTOM_ERRORS } from '../../domain/errors/custom-errors';
 
 export type ResultError = {
   code: CUSTOM_ERRORS;

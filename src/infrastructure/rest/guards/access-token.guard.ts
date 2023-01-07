@@ -4,10 +4,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { UserAuthUseCase } from 'src/application/use-cases/user-auth-use-case';
-import { AuthTokenService } from 'src/infrastructure/services/auth-token/auth-token.service';
-import { UseCaseProxy } from 'src/infrastructure/use-cases-proxy/use-cases-proxy';
-import { UseCaseProxyModule } from 'src/infrastructure/use-cases-proxy/use-cases-proxy.module';
+import { UserAuthUseCase } from '../../../application/use-cases/user-auth-use-case';
+import { AuthTokenService } from '../../services/auth-token/auth-token.service';
+import { UseCaseProxy } from '../../use-cases-proxy/use-cases-proxy';
+import { UseCaseProxyModule } from '../../use-cases-proxy/use-cases-proxy.module';
 
 export class AccessTokenGuard extends AuthGuard('jwt') {
   constructor(

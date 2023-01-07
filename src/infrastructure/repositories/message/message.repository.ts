@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { IMessageRepository } from 'src/application/interfaces/message-repository.interface';
-import { Result } from 'src/application/logic/result';
-import { Message } from 'src/domain/entities/message';
-import { CUSTOM_ERRORS } from 'src/domain/errors/custom-errors';
-import { mergeSortedArray } from 'src/infrastructure/common/helpers/mergeSortedArrays';
-import { PrismaService } from '../../db/prisma/prisma.service';
+import { IMessageRepository } from '../../../application/interfaces/message-repository.interface';
+import { Result } from '../../../application/logic/result';
+import { Message } from '../../../domain/entities/message';
+import { CUSTOM_ERRORS } from '../../../domain/errors/custom-errors';
+import { mergeSortedArray } from '../../common/helpers/mergeSortedArrays';
+import { PrismaService } from '../../services/prisma/prisma.service';
 import { PersistedMessage } from './persisted-message';
 
 @Injectable()

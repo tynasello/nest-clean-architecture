@@ -1,5 +1,3 @@
-import { User } from './user';
-
 interface MessageProps {
   id?: string;
   content: string;

@@ -1,7 +1,7 @@
 import { Controller, Get, Inject, UseGuards } from '@nestjs/common';
-import { GetUserUseCase } from 'src/application/use-cases/get-user-use-case';
-import { UseCaseProxy } from 'src/infrastructure/use-cases-proxy/use-cases-proxy';
-import { UseCaseProxyModule } from 'src/infrastructure/use-cases-proxy/use-cases-proxy.module';
+import { GetUserUseCase } from '../../../application/use-cases/get-user-use-case';
+import { UseCaseProxy } from '../../use-cases-proxy/use-cases-proxy';
+import { UseCaseProxyModule } from '../../use-cases-proxy/use-cases-proxy.module';
 import { GetUserFromReq } from '../decorators/get-user-from-req.decorator';
 import { GetUserResponseDto } from '../dtos/user/get-user-response.dto';
 import { AccessTokenGuard } from '../guards/access-token.guard';

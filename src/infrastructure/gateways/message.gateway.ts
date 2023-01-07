@@ -2,7 +2,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Message } from '@prisma/client';
 import { Server, Socket } from 'socket.io';
-import { IMessageGateway } from 'src/application/interfaces/message-gateway.interface';
+import { IMessageGateway } from '../../application/interfaces/message-gateway.interface';
 import { AuthTokenService } from '../services/auth-token/auth-token.service';
 
 @WebSocketGateway()

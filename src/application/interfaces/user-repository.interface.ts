@@ -1,5 +1,5 @@
-import { Result } from 'src/application/logic/result';
 import { User } from '../../domain/entities/user';
+import { Result } from '../logic/result';
 
 export interface IUserRepository {
   createUser(user: Omit<User, 'id' | 'refreshToken'>): Promise<Result<User>>;

@@ -1,4 +1,4 @@
-import { User } from 'src/domain/entities/user';
+import { User } from '../../domain/entities/user';
 import { IUserRepository } from '../interfaces/user-repository.interface';
 import { Result } from '../logic/result';
 

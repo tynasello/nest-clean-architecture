@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Inject, Post, UseGuards } from '@nestjs/common';
-import { CreateMessageUseCase } from 'src/application/use-cases/create-message-use-case';
-import { GetMessageHistoryWithUsernameUseCase } from 'src/application/use-cases/get-message-history-with-username.use-case';
-import { Message } from 'src/domain/entities/message';
-import { UseCaseProxy } from 'src/infrastructure/use-cases-proxy/use-cases-proxy';
-import { UseCaseProxyModule } from 'src/infrastructure/use-cases-proxy/use-cases-proxy.module';
+import { CreateMessageUseCase } from '../../../application/use-cases/create-message-use-case';
+import { GetMessageHistoryWithUsernameUseCase } from '../../../application/use-cases/get-message-history-with-username.use-case';
+import { Message } from '../../../domain/entities/message';
+import { UseCaseProxy } from '../../use-cases-proxy/use-cases-proxy';
+import { UseCaseProxyModule } from '../../use-cases-proxy/use-cases-proxy.module';
 import { GetUserFromReq } from '../decorators/get-user-from-req.decorator';
 import { CreateMessageRequestDto } from '../dtos/message/create-message-request.dto';
 import { GetMessageHistoryWithUsernameRequestDto } from '../dtos/message/get-message-history-with-username-request.dto';
@@ -33,11 +33,11 @@ export class MessageController extends BaseController {
       senderUsername: senderUsername,
       receiverUsername: createMessageDto.receiverUsername,
     });
-    const createMessagResult = await this._createMessageUseCaseProxy
+    const createMessageResult = await this._createMessageUseCaseProxy
       .getInstance()
       .createMessage(message);
-    if (createMessagResult.isFailure) {
-      this.handleFailedResult(createMessagResult.getError());
+    if (createMessageResult.isFailure) {
+      this.handleFailedResult(createMessageResult.getError());
     }
     return;
   }

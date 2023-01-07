@@ -1,8 +1,13 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { UserAuthUseCase } from 'src/application/use-cases/user-auth-use-case';
-import { GetUserUseCase } from 'src/application/use-cases/get-user-use-case';
-import { FakeUserRepository } from 'src/__test__/fake-adapters/fake-user.repository';
+import { ConfigService } from '@nestjs/config';
+import { CreateMessageUseCase } from '../../application/use-cases/create-message-use-case';
+import { GetMessageHistoryWithUsernameUseCase } from '../../application/use-cases/get-message-history-with-username.use-case';
+import { GetUserUseCase } from '../../application/use-cases/get-user-use-case';
+import { UserAuthUseCase } from '../../application/use-cases/user-auth-use-case';
+import { FakeUserRepository } from '../../__test__/fake-adapters/fake-user.repository';
+import { GatewayModule } from '../gateways/gateway.module';
+import { MessageGateway } from '../gateways/message.gateway';
+import { MessageRepository } from '../repositories/message/message.repository';
 import { RepositoriesModule } from '../repositories/repositories.module';
 import { UserRepository } from '../repositories/user/user.repository';
 import { AuthTokenModule } from '../services/auth-token/auth-token.module';
@@ -10,23 +15,12 @@ import { AuthTokenService } from '../services/auth-token/auth-token.service';
 import { HashModule } from '../services/hash/hash.module';
 import { HashService } from '../services/hash/hash.service';
 import { UseCaseProxy } from './use-cases-proxy';
-import { MessageRepository } from '../repositories/message/message.repository';
-import { CreateMessageUseCase } from 'src/application/use-cases/create-message-use-case';
-import { GetMessageHistoryWithUsernameUseCase } from 'src/application/use-cases/get-message-history-with-username.use-case';
-import { GatewayModule } from '../gateways/gateway.module';
-import { MessageGateway } from '../gateways/message.gateway';
 
+type registerProps = {
+  useFakeImplementations?: boolean;
+};
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: ['.env'],
-    }),
-    RepositoriesModule,
-    HashModule,
-    AuthTokenModule,
-    GatewayModule,
-  ],
+  imports: [RepositoriesModule, HashModule, AuthTokenModule, GatewayModule],
 })
 export class UseCaseProxyModule {
   static USER_AUTH_USE_CASE_PROXY = 'USER_AUTH_USE_CASE_PROXY';
@@ -35,7 +29,7 @@ export class UseCaseProxyModule {
   static GET_MESSAGE_HISTORY_WITH_USERNAME_USE_CASE_PROXY =
     'GET_MESSAGE_HISTORY_WITH_USERNAME_USE_CASE_PROXY';
 
-  static register(useFakeAdapters?: boolean): DynamicModule {
+  static register({ useFakeImplementations }: registerProps): DynamicModule {
     return {
       module: UseCaseProxyModule,
       providers: [
@@ -58,7 +52,7 @@ export class UseCaseProxyModule {
             new UseCaseProxy(
               new UserAuthUseCase(
                 configService,
-                useFakeAdapters ? fakeUserRepository : userRepository,
+                useFakeImplementations ? fakeUserRepository : userRepository,
                 hashService,
                 authTokenService,
               ),
@@ -73,7 +67,7 @@ export class UseCaseProxyModule {
           ) =>
             new UseCaseProxy(
               new GetUserUseCase(
-                useFakeAdapters ? fakeUserRepository : userRepository,
+                useFakeImplementations ? fakeUserRepository : userRepository,
               ),
             ),
         },

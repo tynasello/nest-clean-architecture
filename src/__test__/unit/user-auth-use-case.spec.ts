@@ -1,9 +1,9 @@
 import { ConfigModule } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
-import { UserAuthUseCase } from 'src/application/use-cases/user-auth-use-case';
 import { User } from 'src/domain/entities/user';
 import { UseCaseProxy } from 'src/infrastructure/use-cases-proxy/use-cases-proxy';
 import { UseCaseProxyModule } from 'src/infrastructure/use-cases-proxy/use-cases-proxy.module';
+import { UserAuthUseCase } from '../../application/use-cases/user-auth-use-case';
 import { FakeUserRepository } from '../fake-adapters/fake-user.repository';
 
 let userAuthUseCaseProxy: UseCaseProxy<UserAuthUseCase>;
@@ -11,7 +11,13 @@ let fakeUserRepository: FakeUserRepository;
 
 beforeEach(async () => {
   const module = await Test.createTestingModule({
-    imports: [UseCaseProxyModule.register(true)],
+    imports: [
+      UseCaseProxyModule.register({ useFakeImplementations: true }),
+      ConfigModule.forRoot({
+        isGlobal: true,
+        envFilePath: ['.env'],
+      }),
+    ],
   }).compile();
 
   userAuthUseCaseProxy = module.get<UseCaseProxy<UserAuthUseCase>>(

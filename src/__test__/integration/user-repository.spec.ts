@@ -1,20 +1,26 @@
 import { ConfigModule } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
-import { User } from 'src/domain/entities/user';
-import { CUSTOM_ERRORS } from 'src/domain/errors/custom-errors';
+import { User } from '../../domain/entities/user';
+import { CUSTOM_ERRORS } from '../../domain/errors/custom-errors';
+import { RepositoriesModule } from '../../infrastructure/repositories/repositories.module';
+import { UserRepository } from '../../infrastructure/repositories/user/user.repository';
 import {
   PrismaService,
   TestPrismaService,
-} from 'src/infrastructure/db/prisma/prisma.service';
-import { RepositoriesModule } from 'src/infrastructure/repositories/repositories.module';
-import { UserRepository } from 'src/infrastructure/repositories/user/user.repository';
+} from '../../infrastructure/services/prisma/prisma.service';
 
 let userRepository: UserRepository;
 let prismaService: PrismaService;
 
 beforeAll(async () => {
   const module = await Test.createTestingModule({
-    imports: [RepositoriesModule],
+    imports: [
+      RepositoriesModule,
+      ConfigModule.forRoot({
+        isGlobal: true,
+        envFilePath: ['.env'],
+      }),
+    ],
   })
     .overrideProvider(PrismaService)
     .useClass(TestPrismaService)
@@ -39,7 +45,7 @@ beforeEach(async () => {
 
 describe('Integration test for user repository', () => {
   describe('Creating a user', () => {
-    it('Succesfully creates a user', async () => {
+    it('Successfully creates a user', async () => {
       const user = new User({
         username: 'test-username',
         password: 'test-password',

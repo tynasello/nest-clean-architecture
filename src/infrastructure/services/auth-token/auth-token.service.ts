@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import jwt_decode from 'jwt-decode';
-import { IAuthTokenService } from 'src/application/interfaces/auth-token-service.interface';
+import { IAuthTokenService } from '../../../application/interfaces/auth-token-service.interface';
 
 @Injectable()
 export class AuthTokenService implements IAuthTokenService {
