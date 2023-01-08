@@ -7,7 +7,10 @@ import { MessageController } from './message.controller';
 import { UserController } from './user.controller';
 
 @Module({
-  imports: [UseCaseProxyModule.register(), AuthTokenModule],
+  imports: [
+    UseCaseProxyModule.register({ useFakeImplementations: false }),
+    AuthTokenModule,
+  ],
   providers: [AccessTokenStrategy],
   controllers: [AuthController, UserController, MessageController],
 })
