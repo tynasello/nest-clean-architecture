@@ -1,7 +1,7 @@
 {
   "moduleDirectories": ["node_modules", "<rootDir>"],
   "moduleFileExtensions": ["js", "json", "ts"],
-  "rootDir": ".",
+  "rootDir": "../../",
   "testMatch": ["**/integration/**"],
   "testEnvironment": "node",
   "transform": {

@@ -18,12 +18,12 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "npm run migrate:test && jest --config ./jest-e2e.json --runInBand",
-    "test:integration": "npm run migrate:test && jest --config ./jest-integration.json --runInBand",
-    "test:unit": "jest --config ./jest-unit.json",
+    "test:e2e": "npm run migrate:test && jest --config ./src/__test__/jest-e2e.json --runInBand",
+    "test:integration": "npm run migrate:test && jest --config ./src/__test__/jest-integration.json --runInBand",
+    "test:unit": "jest --config ./src/__test__/jest-unit.json",
     "prisma:generate": "npx prisma generate",
-    "migrate:dev": "dotenv -e ./env/.dev-db.env npx prisma migrate dev",
-    "migrate:test": "dotenv -e ./env/.test-db.env npx prisma migrate deploy",
+    "migrate:dev": "dotenv -e ./src/infrastructure/db/prisma/env/.dev-db.env npx prisma migrate dev",
+    "migrate:test": "dotenv -e ./src/infrastructure/db/prisma/env/.test-db.env npx prisma migrate deploy",
     "migrate": "npm run migrate:dev && npm run migrate:test"
   },
   "dependencies": {
